@@ -1,24 +1,18 @@
-function getRandomInt(firstNum,lastNum) {
-
+function getRandomInt(firstNum, lastNum) {
   if (firstNum >= lastNum || firstNum < 0) {
-    return('Неверно заданный диапазон');
-  }
-  return(Math.floor(Math.random() * (lastNum - firstNum + 1))+firstNum);
-
-
-}
-
-function getRandomFloat(firstNum,lastNum,floatingPointNumber) {
-
-  if (firstNum >= lastNum || firstNum < 0) {
-    return('Неверно заданный диапазон');
+    return null;
   }
 
-
-  return((Math.random() * (lastNum - firstNum + 1) + firstNum).toFixed(floatingPointNumber));
-
-
+  return(Math.floor(Math.random() * (lastNum - firstNum + 1)) + firstNum);
 }
 
-getRandomFloat(5.1, 66.4,4);
-getRandomInt(90,188);
+function getRandomFloat(firstNum, lastNum, floatingPointNumber) {
+  if (firstNum >= lastNum || firstNum < 0) {
+    return null;
+  }
+
+  return((Math.random() * (lastNum - firstNum) + firstNum).toFixed(floatingPointNumber));
+}
+
+getRandomFloat(99, 100, 4);
+getRandomInt(90, 100);
