@@ -60,11 +60,11 @@ const createAd = (id) => {
     lng: getRandomFloat(139.70000, 139.80000, 5),
   };
 
-  const uniqueId = String(++id);
+  const uniqueId = String(++id).padStart(2, 0);
 
   const objectAd = {
     author: {
-      avatar: `img/avatars/user${uniqueId.padStart(2, 0)}.png`,
+      avatar: `img/avatars/user${uniqueId}.png`,
     },
     offer: {
       title: 'Новое объявление',
