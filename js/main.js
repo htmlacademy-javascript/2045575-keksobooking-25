@@ -14,7 +14,7 @@ function getRandomFloat(firstNum, lastNum, floatingPointNumber) {
   return (Math.random() * (lastNum - firstNum) + firstNum).toFixed(floatingPointNumber);
 }
 
-const TYPE = [
+const TYPES = [
   'palace',
   'flat',
   'house',
@@ -44,27 +44,7 @@ const PHOTOS = [
   'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/brandon-hoogenboom-SNxQGWxZQi0.jpg',
   'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/claire-rendall-b6kAwr1i0Iw.jpg',
 ];
-const SIMILAR_OBJECTS_COUNT = 10;
-const IMG_COUNT = SIMILAR_OBJECTS_COUNT;
-
-const getUniqueIdArray = () => {
-  const arrayOfUniqueImg = [];
-  const zero = '0';
-
-  for (let img = 1; img <= IMG_COUNT; img++) {
-
-    if (img < IMG_COUNT) {
-      img = zero.concat(img);
-    }
-
-    arrayOfUniqueImg.push(img);
-  }
-
-  return arrayOfUniqueImg;
-};
-
-const uniqueIdArray = getUniqueIdArray();
-const uniqueImg = () => uniqueIdArray.splice(0, 1);
+const MAX_ADS_AMOUNT = 10;
 
 const getRandomArrayElement = (elements) => elements[getRandomInt(0, elements.length - 1)];
 
@@ -74,25 +54,23 @@ const getRandomArrayLength = (array) => {
   return array.splice(randomIndex);
 };
 
-const createObject = () => {
-  const lat = getRandomFloat(35.65000, 35.70000, 5);
-  const lng = getRandomFloat(139.70000, 139.80000, 5);
+const createAd = (id) => {
+  const location = {
+    lat: getRandomFloat(35.65000, 35.70000, 5),
+    lng: getRandomFloat(139.70000, 139.80000, 5),
+  };
 
-  const resultObject = {
+  const uniqueId = String(++id);
+
+  const objectAd = {
     author: {
-      avatar: `img/avatars/user${uniqueImg()}.png`,
+      avatar: `img/avatars/user${uniqueId.padStart(2, 0)}.png`,
     },
-
-    location: {
-      lat: lat,
-      lng: lng,
-    },
-
     offer: {
       title: 'Новое объявление',
-      address: `${lat}, ${lng}`,
+      address: `${location.lat}, ${location.lng}`,
       price: getRandomInt(1500, 4500),
-      type: getRandomArrayElement(TYPE),
+      type: getRandomArrayElement(TYPES),
       rooms: getRandomInt(1, 5),
       guests: getRandomInt(1, 8),
       checkin: getRandomArrayElement(CHECKIN),
@@ -101,10 +79,11 @@ const createObject = () => {
       description: 'На подоконнике лежит бумажка с колбасными шкурками',
       photos: getRandomArrayLength(PHOTOS)
     },
+    location,
   };
 
-  return resultObject;
+  return objectAd;
 };
 
-const getArrayOfObjects = (objectsQuantity) => Array.from({length: objectsQuantity}, createObject);
-getArrayOfObjects(SIMILAR_OBJECTS_COUNT);
+const getArrayOfAds = (amount) => Array.from({length: amount}, (v, id) => createAd(id));
+getArrayOfAds(MAX_ADS_AMOUNT);
