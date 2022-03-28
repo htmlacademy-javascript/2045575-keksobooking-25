@@ -23,22 +23,22 @@ const pristine = new Pristine(adForm, {
 });
 
 // Валидация для заголовка объявления
-const titleForm = adForm.querySelector('[name="title"]');
+const titleField = adForm.querySelector('[name="title"]');
+const titleFieldBound = 'От 30 до 100 символов';
 
-function validateTitle (value) {
-  return value.length >= 30 && value.length <= 100;
-}
+const validateTitle = (value) => value.length >= 30 && value.length <= 100;
 
-pristine.addValidator(titleForm, validateTitle, 'От 30 до 100 символов');
+pristine.addValidator(titleField, validateTitle, titleFieldBound);
 
 // Валидация для цены объявления
-const priceForm = adForm.querySelector('[name="price"]');
+const priceField = adForm.querySelector('[name="price"]');
+const minPrice = 1;
+const maxPrice = 100000;
+const priceFieldBound = 'Число от 1 до 100 000';
 
-function validatePrice (value) {
-  return value>= 1 && value <= 100000;
-}
+const validatePrice = (value) => value >= minPrice && value <= maxPrice;
 
-pristine.addValidator(priceForm, validatePrice, 'Значение от 1 до 100 000');
+pristine.addValidator(priceField, validatePrice, priceFieldBound);
 
 // Валидация для количества комнат и мест
 const roomsOption = {
@@ -51,11 +51,9 @@ const roomsOption = {
 const roomsField = adForm.querySelector('[name="rooms"]');
 const capacityField = adForm.querySelector('[name="capacity"]');
 
-function validateRooms () {
-  return roomsOption[roomsField.value].includes(capacityField.value);
-}
+const validateRooms = () => roomsOption[roomsField.value].includes(capacityField.value);
 
-function getRoomsErrorMessage () {
+const getRoomsErrorMessage = () => {
   switch (roomsField.value) {
     case '1':
       return '1 комната только для 1 гостя';
@@ -66,7 +64,7 @@ function getRoomsErrorMessage () {
     case '100':
       return '100 комнат не для гостей';
   }
-}
+};
 
 capacityField.addEventListener('change', () => {
   pristine.validate(roomsField);
@@ -76,9 +74,8 @@ pristine.addValidator(roomsField, validateRooms, getRoomsErrorMessage);
 
 // Отправка формы
 adForm.addEventListener('submit', (evt) => {
-  if (!pristine.validate()) {
-    evt.preventDefault();
-  }
+  evt.preventDefault();
+  pristine.validate();
 });
 
 setFormInactive();
