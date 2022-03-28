@@ -24,21 +24,23 @@ const pristine = new Pristine(adForm, {
 
 // Валидация для заголовка объявления
 const titleField = adForm.querySelector('[name="title"]');
-const titleFieldBound = 'От 30 до 100 символов';
+const titleMinLength = 30;
+const titleMaxLength = 100;
+const titleFieldError = `От ${titleMinLength} до ${titleMaxLength} символов`;
 
-const validateTitle = (value) => value.length >= 30 && value.length <= 100;
+const validateTitle = (value) => value.length >= titleMinLength && value.length <= titleMaxLength;
 
-pristine.addValidator(titleField, validateTitle, titleFieldBound);
+pristine.addValidator(titleField, validateTitle, titleFieldError);
 
 // Валидация для цены объявления
 const priceField = adForm.querySelector('[name="price"]');
 const minPrice = 1;
 const maxPrice = 100000;
-const priceFieldBound = 'Число от 1 до 100 000';
+const priceFieldError = `Число от ${minPrice} до ${maxPrice}`;
 
 const validatePrice = (value) => value >= minPrice && value <= maxPrice;
 
-pristine.addValidator(priceField, validatePrice, priceFieldBound);
+pristine.addValidator(priceField, validatePrice, priceFieldError);
 
 // Валидация для количества комнат и мест
 const roomsOption = {
