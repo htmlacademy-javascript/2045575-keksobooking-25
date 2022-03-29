@@ -24,23 +24,48 @@ const pristine = new Pristine(adForm, {
 
 // Валидация для заголовка объявления
 const titleField = adForm.querySelector('[name="title"]');
-const titleMinLength = 30;
-const titleMaxLength = 100;
-const titleFieldError = `От ${titleMinLength} до ${titleMaxLength} символов`;
+const MIN_TITLE_LENGTH = 30;
+const MAX_TITLE_LENGTH = 100;
+const titleFieldError = `Значение от ${MIN_TITLE_LENGTH} до ${MAX_TITLE_LENGTH} символов`;
 
-const validateTitle = (value) => value.length >= titleMinLength && value.length <= titleMaxLength;
+const validateTitle = (value) => value.length >= MIN_TITLE_LENGTH && value.length <= MAX_TITLE_LENGTH;
 
 pristine.addValidator(titleField, validateTitle, titleFieldError);
 
-// Валидация для цены объявления
+// Валидация влияния типа жилья на цену за ночь
 const priceField = adForm.querySelector('[name="price"]');
-const minPrice = 1;
-const maxPrice = 100000;
-const priceFieldError = `Число от ${minPrice} до ${maxPrice}`;
+const typeOfHousing = adForm.querySelector('[name="type"]');
+const minPrices = {
+  bungalow: 0,
+  flat: 1000,
+  hotel: 3000,
+  house: 5000,
+  palace: 10000,
+};
+const MAX_PRICE = 100000;
 
-const validatePrice = (value) => value >= minPrice && value <= maxPrice;
+const getPriceErrorMessage = () => `Число от ${minPrices[typeOfHousing.value]} до ${MAX_PRICE}`;
 
-pristine.addValidator(priceField, validatePrice, priceFieldError);
+const validatePrice = (value) => value >= minPrices[typeOfHousing.value] && value <= MAX_PRICE;
+
+typeOfHousing.addEventListener('change', () => {
+  priceField.placeholder = `${minPrices[typeOfHousing.value]}`;
+  pristine.validate(priceField);
+});
+
+pristine.addValidator(priceField, validatePrice, getPriceErrorMessage);
+
+// Синхронизация времени заезда и выезда
+const timeIn = adForm.querySelector('[name="timein"]');
+const timeOut = adForm.querySelector('[name="timeout"]');
+
+timeIn.addEventListener('change', () => {
+  timeOut.value = timeIn.value;
+});
+
+timeOut.addEventListener('change', () => {
+  timeIn.value = timeOut.value;
+});
 
 // Валидация для количества комнат и мест
 const roomsOption = {
@@ -73,6 +98,17 @@ capacityField.addEventListener('change', () => {
 });
 
 pristine.addValidator(roomsField, validateRooms, getRoomsErrorMessage);
+
+// Очистка формы
+adForm.addEventListener('reset', () => {
+  priceField.placeholder = '1000';
+  const errors = adForm.querySelectorAll('.form__error');
+  if (errors) {
+    for (const error of errors) {
+      error.innerText = '';
+    }
+  }
+});
 
 // Отправка формы
 adForm.addEventListener('submit', (evt) => {
