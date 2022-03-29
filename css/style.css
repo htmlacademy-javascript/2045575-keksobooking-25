@@ -944,6 +944,11 @@ fieldset {
 
   background-color: rgba(0, 0, 0, 0.8);
 }
+.form__error {
+  display: block;
+  font-size: 0.85em;
+  color: #c00;
+}
 
 .success__message,
 .error__message {

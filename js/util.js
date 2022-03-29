@@ -1,18 +1,18 @@
-function getRandomInt(firstNum, lastNum) {
+const getRandomInt = (firstNum, lastNum) => {
   if (firstNum >= lastNum || firstNum < 0) {
     return null;
   }
 
   return Math.floor(Math.random() * (lastNum - firstNum + 1)) + firstNum;
-}
+};
 
-function getRandomFloat(firstNum, lastNum, floatingPointNumber) {
+const getRandomFloat = (firstNum, lastNum, floatingPointNumber) => {
   if (firstNum >= lastNum || firstNum < 0) {
     return null;
   }
 
   return (Math.random() * (lastNum - firstNum) + firstNum).toFixed(floatingPointNumber);
-}
+};
 
 const getRandomArrayElement = (elements) => elements[getRandomInt(0, elements.length - 1)];
 
