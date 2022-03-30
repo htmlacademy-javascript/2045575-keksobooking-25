@@ -4,11 +4,11 @@ const cardTemplate = document.querySelector('#card').content.querySelector('.pop
 const similarAds = getArrayOfAds(1);
 const similarListElement = document.querySelector('#map-canvas');
 const typesDictionary = {
-  'palace': 'Дворец',
-  'flat': 'Квартира',
-  'house': 'Дом',
-  'bungalow': 'Бунгало',
-  'hotel': 'Отель',
+  palace: 'Дворец',
+  flat: 'Квартира',
+  house: 'Дом',
+  bungalow: 'Бунгало',
+  hotel: 'Отель',
 };
 
 const createFeatures = (featureList) => {
