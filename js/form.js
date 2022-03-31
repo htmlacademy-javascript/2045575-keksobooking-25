@@ -1,3 +1,5 @@
+import {map, addressField, mainMarker, tokyoPosition} from './map.js';
+
 const adForm = document.querySelector('.ad-form');
 const mapForm = document.querySelector('.map__filters');
 
@@ -26,7 +28,7 @@ const pristine = new Pristine(adForm, {
 const titleField = adForm.querySelector('[name="title"]');
 const MIN_TITLE_LENGTH = 30;
 const MAX_TITLE_LENGTH = 100;
-const titleFieldError = `Значение от ${MIN_TITLE_LENGTH} до ${MAX_TITLE_LENGTH} символов`;
+const titleFieldError = `От ${MIN_TITLE_LENGTH} до ${MAX_TITLE_LENGTH} символов`;
 
 const validateTitle = (value) => value.length >= MIN_TITLE_LENGTH && value.length <= MAX_TITLE_LENGTH;
 
@@ -42,6 +44,7 @@ const minPrices = {
   house: 5000,
   palace: 10000,
 };
+const MIN_RPICE = 0;
 const MAX_PRICE = 100000;
 
 const getPriceErrorMessage = () => `Число от ${minPrices[typeOfHousing.value]} до ${MAX_PRICE}`;
@@ -54,6 +57,37 @@ typeOfHousing.addEventListener('change', () => {
 });
 
 pristine.addValidator(priceField, validatePrice, getPriceErrorMessage);
+
+// Слайдер для цены за ночь
+const priceSliderElement = document.querySelector('.ad-form__slider');
+const PRICE_SLIDER_STEP = 100;
+
+noUiSlider.create(priceSliderElement, {
+  range: {
+    min: MIN_RPICE,
+    max: MAX_PRICE
+  },
+  start: MIN_RPICE,
+  step: PRICE_SLIDER_STEP,
+  connect: 'lower',
+  format: {
+    to: (value) => value.toFixed(0),
+    from: (value) => parseFloat(value)
+  }
+});
+
+priceField.addEventListener('input', () => {
+  priceField.value = priceField.value.substr(0, 6);
+  priceField.value = parseFloat(priceField.value);
+  // Пытаюсь передать значение цены в слайдер, но ввод становится  практически заблокированным. Почему?
+  priceSliderElement.noUiSlider.set(priceField.value);
+  //
+});
+
+priceSliderElement.noUiSlider.on('update', () => {
+  priceField.value = priceSliderElement.noUiSlider.get();
+  pristine.validate(priceField);
+});
 
 // Синхронизация времени заезда и выезда
 const timeIn = adForm.querySelector('[name="timein"]');
@@ -100,15 +134,35 @@ capacityField.addEventListener('change', () => {
 pristine.addValidator(roomsField, validateRooms, getRoomsErrorMessage);
 
 // Очистка формы
-adForm.addEventListener('reset', () => {
-  priceField.placeholder = '1000';
+const PLACEHOLDER_DEFAULT = 0;
+
+const resetForm = () => {
+  // При очистке поле цены не становится по умолчанию, хотя я указал здесь
+  addressField.value = `${tokyoPosition.lat}, ${tokyoPosition.lng}`;
+  //
+  mainMarker.setLatLng(
+    {
+      lat: tokyoPosition.lat,
+      lng: tokyoPosition.lng
+    }
+  );
+  map.setView(
+    {
+      lat: tokyoPosition.lat,
+      lng: tokyoPosition.lng
+    }, tokyoPosition.zoom);
+
+  priceField.placeholder = PLACEHOLDER_DEFAULT;
   const errors = adForm.querySelectorAll('.form__error');
+
   if (errors) {
     for (const error of errors) {
       error.innerText = '';
     }
   }
-});
+};
+
+adForm.addEventListener('reset', resetForm);
 
 // Отправка формы
 adForm.addEventListener('submit', (evt) => {
