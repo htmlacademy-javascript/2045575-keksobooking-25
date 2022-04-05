@@ -1,18 +1,7 @@
-import {map, addressField, mainMarker, tokyoPosition} from './map.js';
+import {resetMap} from './map.js';
 
 const adForm = document.querySelector('.ad-form');
 const mapForm = document.querySelector('.map__filters');
-
-// Смена состояния формы
-const setFormInactive = () => {
-  adForm.classList.add('ad-form--disabled');
-  mapForm.classList.add('map__filters--disabled');
-};
-
-const setFormActive = () => {
-  adForm.classList.remove('ad-form--disabled');
-  mapForm.classList.remove('map__filters--disabled');
-};
 
 // Настройки Pristine
 const pristine = new Pristine(adForm, {
@@ -23,6 +12,16 @@ const pristine = new Pristine(adForm, {
   errorTextTag: 'span',
   errorTextClass: 'form__error',
 });
+
+const clearErrors = () => {
+  const errors = adForm.querySelectorAll('.form__error');
+
+  if (errors) {
+    for (const error of errors) {
+      error.innerText = '';
+    }
+  }
+};
 
 // Валидация для заголовка объявления
 const titleField = adForm.querySelector('[name="title"]');
@@ -79,15 +78,22 @@ noUiSlider.create(priceSliderElement, {
 priceField.addEventListener('input', () => {
   priceField.value = priceField.value.substr(0, 6);
   priceField.value = parseFloat(priceField.value);
-  // Пытаюсь передать значение цены в слайдер, но ввод становится  практически заблокированным. Почему?
   priceSliderElement.noUiSlider.set(priceField.value);
-  //
 });
 
-priceSliderElement.noUiSlider.on('update', () => {
+priceSliderElement.noUiSlider.on('slide', () => {
   priceField.value = priceSliderElement.noUiSlider.get();
   pristine.validate(priceField);
 });
+
+// Установление значений координат адреса по умолчанию
+const DEFAULT_LAT = 35.68958;
+const DEFAULT_LNG = 139.69207;
+const addressField = document.querySelector('[name="address"]');
+
+const setAddressValue = (latValue, lngValue) => {
+  addressField.value = `${latValue}, ${lngValue}`;
+};
 
 // Синхронизация времени заезда и выезда
 const timeIn = adForm.querySelector('[name="timein"]');
@@ -133,33 +139,25 @@ capacityField.addEventListener('change', () => {
 
 pristine.addValidator(roomsField, validateRooms, getRoomsErrorMessage);
 
+// Смена состояния формы
+const setFormInactive = () => {
+  adForm.classList.add('ad-form--disabled');
+  mapForm.classList.add('map__filters--disabled');
+};
+
+const setFormActive = () => {
+  adForm.classList.remove('ad-form--disabled');
+  mapForm.classList.remove('map__filters--disabled');
+  setAddressValue(DEFAULT_LAT, DEFAULT_LNG);
+};
+
 // Очистка формы
 const PLACEHOLDER_DEFAULT = 0;
 
 const resetForm = () => {
-  // При очистке поле цены не становится по умолчанию, хотя я указал здесь
-  addressField.value = `${tokyoPosition.lat}, ${tokyoPosition.lng}`;
-  //
-  mainMarker.setLatLng(
-    {
-      lat: tokyoPosition.lat,
-      lng: tokyoPosition.lng
-    }
-  );
-  map.setView(
-    {
-      lat: tokyoPosition.lat,
-      lng: tokyoPosition.lng
-    }, tokyoPosition.zoom);
-
+  clearErrors();
   priceField.placeholder = PLACEHOLDER_DEFAULT;
-  const errors = adForm.querySelectorAll('.form__error');
-
-  if (errors) {
-    for (const error of errors) {
-      error.innerText = '';
-    }
-  }
+  resetMap();
 };
 
 adForm.addEventListener('reset', resetForm);
@@ -171,4 +169,4 @@ adForm.addEventListener('submit', (evt) => {
 });
 
 setFormInactive();
-export {setFormActive};
+export {setFormActive, setAddressValue};

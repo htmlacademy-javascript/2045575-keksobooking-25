@@ -1,17 +1,18 @@
-import {fillAd} from './draw-ads.js';
-import {setFormActive} from './form.js';
+import {createAdElement} from './draw-ads.js';
+import {setFormActive, setAddressValue} from './form.js';
 
 const tokyoPosition = {
   lat: 35.68958,
   lng: 139.69207,
   zoom: 12
 };
+const {lat, lng, zoom} = tokyoPosition;
 
 const map = L.map('map-canvas').on('load', setFormActive)
   .setView({
-    lat: tokyoPosition.lat,
-    lng: tokyoPosition.lng
-  }, tokyoPosition.zoom);
+    lat,
+    lng
+  }, zoom);
 
 L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -31,8 +32,8 @@ const mainMarkerIcon = L.icon(
 
 const mainMarker = L.marker(
   {
-    lat: tokyoPosition.lat,
-    lng: tokyoPosition.lng
+    lat,
+    lng
   },
   {
     draggable: true,
@@ -42,17 +43,15 @@ const mainMarker = L.marker(
 
 mainMarker.addTo(map);
 
-// Заполнение значения поля адреса координатами главного маркера
-const addressField = document.querySelector('[name="address"]');
-addressField.value = `${tokyoPosition.lat}, ${tokyoPosition.lng}`;
-
+// Изменение значения поля адреса координатами главного маркера
 mainMarker.on('moveend', (evt) => {
-  const mainMarkerLat = parseFloat(evt.target.getLatLng().lat.toFixed(5));
-  const mainMarkerLng = parseFloat(evt.target.getLatLng().lng.toFixed(5));
-  addressField.value = `${mainMarkerLat}, ${mainMarkerLng}`;
+  const {target} = evt;
+  const mainMarkerLat = parseFloat(target.getLatLng().lat.toFixed(5));
+  const mainMarkerLng = parseFloat(target.getLatLng().lng.toFixed(5));
+  setAddressValue(mainMarkerLat, mainMarkerLng);
 });
 
-// Создание маркеров для объявлений
+// Создание маркеров для объявлений на карте
 const adMarkerIcon = L.icon(
   {
     iconUrl: './img/pin.svg',
@@ -61,7 +60,7 @@ const adMarkerIcon = L.icon(
   }
 );
 
-const createMarker = ({offer, author, location}) => {
+const createMarker = ({location}) => {
   const adMarker = L.marker(
     {
       lat: location.lat,
@@ -73,9 +72,27 @@ const createMarker = ({offer, author, location}) => {
     }
   );
 
-  adMarker.addTo(map).bindPopup(fillAd({offer, author}));
-
   return adMarker;
 };
 
-export {map, mainMarker, addressField, tokyoPosition, createMarker};
+const putMarkerOnMap = ({offer, author, location}) => {
+  createMarker({location}).addTo(map).bindPopup(createAdElement({offer, author}));
+};
+
+// Очистка карты
+const resetMap = () => {
+  mainMarker.setLatLng(
+    {
+      lat,
+      lng
+    }
+  );
+  map.setView(
+    {
+      lat,
+      lng
+    }, zoom);
+  setAddressValue(mainMarker.lat, mainMarker.lng);
+};
+
+export {putMarkerOnMap, resetMap, tokyoPosition};

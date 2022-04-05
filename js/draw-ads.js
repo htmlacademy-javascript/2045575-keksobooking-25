@@ -39,7 +39,7 @@ const createPhotos = (photosList) => {
   return photosListFragment;
 };
 
-const fillAd = ({offer, author}) => {
+const createAdElement = ({offer, author}) => {
   const adElement = cardTemplate.cloneNode(true);
   adElement.querySelector('.popup__title').textContent = offer.title;
   adElement.querySelector('.popup__text--address').textContent = offer.address;
@@ -74,10 +74,10 @@ const drawAd = () => {
   const similarListFragment = document.createDocumentFragment();
 
   similarAds.forEach(({offer, author}) => {
-    similarListFragment.append(fillAd({offer, author}));
+    similarListFragment.append(createAdElement({offer, author}));
   });
 
   similarListElement.append(similarListFragment);
 };
 
-export {drawAd, similarAds, fillAd};
+export {drawAd, similarAds, createAdElement};
