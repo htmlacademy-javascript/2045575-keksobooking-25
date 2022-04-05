@@ -1,6 +1,6 @@
-import {getArrayOfAds, MAX_ADS_AMOUNT} from './data.js';
-import {drawAd} from './draw-ads.js';
-import {setFormActive} from './form.js';
-getArrayOfAds(MAX_ADS_AMOUNT);
-drawAd();
-setFormActive();
+import {putMarkerOnMap} from './map.js';
+import { similarAds } from './draw-ads.js';
+
+similarAds.forEach(({offer, author, location}) => {
+  putMarkerOnMap({offer, author, location});
+});

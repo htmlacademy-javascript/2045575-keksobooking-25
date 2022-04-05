@@ -63,6 +63,6 @@ const createAd = (id) => {
   return objectAd;
 };
 
-const getArrayOfAds = (amount) => Array.from({length: amount}, (v, id) => createAd(id));
+const getSimilarAds = (amount) => Array.from({length: amount}, (v, id) => createAd(id));
 
-export {getArrayOfAds, MAX_ADS_AMOUNT};
+export {getSimilarAds, MAX_ADS_AMOUNT};

@@ -1,16 +1,7 @@
+import {resetMap} from './map.js';
+
 const adForm = document.querySelector('.ad-form');
 const mapForm = document.querySelector('.map__filters');
-
-// Смена состояния формы
-const setFormInactive = () => {
-  adForm.classList.add('ad-form--disabled');
-  mapForm.classList.add('map__filters--disabled');
-};
-
-const setFormActive = () => {
-  adForm.classList.remove('ad-form--disabled');
-  mapForm.classList.remove('map__filters--disabled');
-};
 
 // Настройки Pristine
 const pristine = new Pristine(adForm, {
@@ -22,11 +13,21 @@ const pristine = new Pristine(adForm, {
   errorTextClass: 'form__error',
 });
 
+const clearErrors = () => {
+  const errors = adForm.querySelectorAll('.form__error');
+
+  if (errors) {
+    for (const error of errors) {
+      error.innerText = '';
+    }
+  }
+};
+
 // Валидация для заголовка объявления
 const titleField = adForm.querySelector('[name="title"]');
 const MIN_TITLE_LENGTH = 30;
 const MAX_TITLE_LENGTH = 100;
-const titleFieldError = `Значение от ${MIN_TITLE_LENGTH} до ${MAX_TITLE_LENGTH} символов`;
+const titleFieldError = `От ${MIN_TITLE_LENGTH} до ${MAX_TITLE_LENGTH} символов`;
 
 const validateTitle = (value) => value.length >= MIN_TITLE_LENGTH && value.length <= MAX_TITLE_LENGTH;
 
@@ -42,6 +43,7 @@ const minPrices = {
   house: 5000,
   palace: 10000,
 };
+const MIN_RPICE = 0;
 const MAX_PRICE = 100000;
 
 const getPriceErrorMessage = () => `Число от ${minPrices[typeOfHousing.value]} до ${MAX_PRICE}`;
@@ -54,6 +56,44 @@ typeOfHousing.addEventListener('change', () => {
 });
 
 pristine.addValidator(priceField, validatePrice, getPriceErrorMessage);
+
+// Слайдер для цены за ночь
+const priceSliderElement = document.querySelector('.ad-form__slider');
+const PRICE_SLIDER_STEP = 100;
+
+noUiSlider.create(priceSliderElement, {
+  range: {
+    min: MIN_RPICE,
+    max: MAX_PRICE
+  },
+  start: MIN_RPICE,
+  step: PRICE_SLIDER_STEP,
+  connect: 'lower',
+  format: {
+    to: (value) => value.toFixed(0),
+    from: (value) => parseFloat(value)
+  }
+});
+
+priceField.addEventListener('input', () => {
+  priceField.value = priceField.value.substr(0, 6);
+  priceField.value = parseFloat(priceField.value);
+  priceSliderElement.noUiSlider.set(priceField.value);
+});
+
+priceSliderElement.noUiSlider.on('slide', () => {
+  priceField.value = priceSliderElement.noUiSlider.get();
+  pristine.validate(priceField);
+});
+
+// Установление значений координат адреса по умолчанию
+const DEFAULT_LAT = 35.68958;
+const DEFAULT_LNG = 139.69207;
+const addressField = document.querySelector('[name="address"]');
+
+const setAddressValue = (latValue, lngValue) => {
+  addressField.value = `${latValue}, ${lngValue}`;
+};
 
 // Синхронизация времени заезда и выезда
 const timeIn = adForm.querySelector('[name="timein"]');
@@ -99,16 +139,28 @@ capacityField.addEventListener('change', () => {
 
 pristine.addValidator(roomsField, validateRooms, getRoomsErrorMessage);
 
+// Смена состояния формы
+const setFormInactive = () => {
+  adForm.classList.add('ad-form--disabled');
+  mapForm.classList.add('map__filters--disabled');
+};
+
+const setFormActive = () => {
+  adForm.classList.remove('ad-form--disabled');
+  mapForm.classList.remove('map__filters--disabled');
+  setAddressValue(DEFAULT_LAT, DEFAULT_LNG);
+};
+
 // Очистка формы
-adForm.addEventListener('reset', () => {
-  priceField.placeholder = '1000';
-  const errors = adForm.querySelectorAll('.form__error');
-  if (errors) {
-    for (const error of errors) {
-      error.innerText = '';
-    }
-  }
-});
+const PLACEHOLDER_DEFAULT = 0;
+
+const resetForm = () => {
+  clearErrors();
+  priceField.placeholder = PLACEHOLDER_DEFAULT;
+  resetMap();
+};
+
+adForm.addEventListener('reset', resetForm);
 
 // Отправка формы
 adForm.addEventListener('submit', (evt) => {
@@ -117,4 +169,4 @@ adForm.addEventListener('submit', (evt) => {
 });
 
 setFormInactive();
-export {setFormActive};
+export {setFormActive, setAddressValue};
