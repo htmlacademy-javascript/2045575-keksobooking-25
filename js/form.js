@@ -1,4 +1,6 @@
 import {resetMap} from './map.js';
+import { sendData } from './server-api.js';
+import {showSuccessMessage, showErrorMessage} from './util.js';
 
 const adForm = document.querySelector('.ad-form');
 const mapForm = document.querySelector('.map__filters');
@@ -12,16 +14,6 @@ const pristine = new Pristine(adForm, {
   errorTextTag: 'span',
   errorTextClass: 'form__error',
 });
-
-const clearErrors = () => {
-  const errors = adForm.querySelectorAll('.form__error');
-
-  if (errors) {
-    for (const error of errors) {
-      error.innerText = '';
-    }
-  }
-};
 
 // Валидация для заголовка объявления
 const titleField = adForm.querySelector('[name="title"]');
@@ -87,8 +79,6 @@ priceSliderElement.noUiSlider.on('slide', () => {
 });
 
 // Установление значений координат адреса по умолчанию
-const DEFAULT_LAT = 35.68958;
-const DEFAULT_LNG = 139.69207;
 const addressField = document.querySelector('[name="address"]');
 
 const setAddressValue = (latValue, lngValue) => {
@@ -148,25 +138,57 @@ const setFormInactive = () => {
 const setFormActive = () => {
   adForm.classList.remove('ad-form--disabled');
   mapForm.classList.remove('map__filters--disabled');
-  setAddressValue(DEFAULT_LAT, DEFAULT_LNG);
 };
 
 // Очистка формы
-const PLACEHOLDER_DEFAULT = 0;
+const PRICE_PLACEHOLDER_DEFAULT = 1000;
+const resetButton = adForm.querySelector('.ad-form__reset');
 
-const resetForm = () => {
-  clearErrors();
-  priceField.placeholder = PLACEHOLDER_DEFAULT;
+const onResetAdForm = () => {
+  adForm.reset();
+  priceField.placeholder = PRICE_PLACEHOLDER_DEFAULT;
+  priceSliderElement.noUiSlider.set(PRICE_PLACEHOLDER_DEFAULT);
   resetMap();
 };
 
-adForm.addEventListener('reset', resetForm);
+resetButton.addEventListener('click', onResetAdForm);
 
 // Отправка формы
-adForm.addEventListener('submit', (evt) => {
+const submitButton = adForm.querySelector('.ad-form__submit');
+
+const blockSubmitButton = () => {
+  submitButton.disabled = 'true';
+  submitButton.textContent = 'Публикую...';
+};
+
+const unblockSubmitButton = () => {
+  submitButton.disabled = 'false';
+  submitButton.textContent = 'Опубликовать';
+};
+
+const onAdFormSubmit = (evt) => {
   evt.preventDefault();
-  pristine.validate();
-});
+
+  const isValid = pristine.validate();
+
+  if (isValid) {
+    blockSubmitButton();
+    sendData(
+      () => {
+        unblockSubmitButton();
+        onResetAdForm();
+        showSuccessMessage();
+      },
+      () => {
+        unblockSubmitButton();
+        showErrorMessage();
+      },
+      new FormData(evt.target));
+  }
+};
+
+adForm.addEventListener('submit', onAdFormSubmit);
+
 
 setFormInactive();
 export {setFormActive, setAddressValue};

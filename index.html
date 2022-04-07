@@ -95,13 +95,13 @@
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--wide">
           <label class="ad-form__label" for="address">Адрес (координаты)</label>
-          <input id="address" name="address" type="text" readonly>
+          <input id="address" name="address" type="text" value="35.68179, 139.7499" readonly>
         </fieldset>
         <fieldset class="ad-form__element">
           <label class="ad-form__label" for="type">Тип жилья</label>
           <select id="type" name="type">
-            <option value="bungalow" selected>Бунгало</option>
-            <option value="flat">Квартира</option>
+            <option value="bungalow">Бунгало</option>
+            <option value="flat" selected>Квартира</option>
             <option value="hotel">Отель</option>
             <option value="house">Дом</option>
             <option value="palace">Дворец</option>
@@ -110,7 +110,7 @@
         <fieldset class="ad-form__element">
           <label class="form__item">
           <label class="ad-form__label" for="price">Цена за ночь, руб.</label>
-          <input id="price" name="price" type="number" placeholder="0" step="100">
+          <input id="price" name="price" type="number" placeholder="1000" step="100">
           </label>
           <div class="ad-form__slider"></div>
         </fieldset>
@@ -180,7 +180,7 @@
         </fieldset>
         <fieldset class="ad-form__element ad-form__element--submit">
           <button class="ad-form__submit" type="submit">Опубликовать</button>
-          или <button class="ad-form__reset" type="reset">очистить</button>
+          или <button class="ad-form__reset">очистить</button>
         </fieldset>
       </form>
     </section>

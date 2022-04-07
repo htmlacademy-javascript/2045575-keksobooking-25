@@ -1,7 +1,4 @@
-import { getSimilarAds } from './data.js';
-
 const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
-const similarListElement = document.querySelector('#map-canvas');
 const typesDictionary = {
   palace: 'Дворец',
   flat: 'Квартира',
@@ -9,7 +6,6 @@ const typesDictionary = {
   bungalow: 'Бунгало',
   hotel: 'Отель',
 };
-const similarAds = getSimilarAds(5);
 
 const createFeatures = (featureList) => {
   const featureListFragment = document.createDocumentFragment();
@@ -70,14 +66,4 @@ const createAdElement = ({offer, author}) => {
   return adElement;
 };
 
-const drawAd = () => {
-  const similarListFragment = document.createDocumentFragment();
-
-  similarAds.forEach(({offer, author}) => {
-    similarListFragment.append(createAdElement({offer, author}));
-  });
-
-  similarListElement.append(similarListFragment);
-};
-
-export {drawAd, similarAds, createAdElement};
+export {createAdElement};

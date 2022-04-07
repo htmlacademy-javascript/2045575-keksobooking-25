@@ -1,9 +1,9 @@
-import {createAdElement} from './draw-ads.js';
 import {setFormActive, setAddressValue} from './form.js';
+import {createAdElement} from './draw-ads.js';
 
 const tokyoPosition = {
-  lat: 35.68958,
-  lng: 139.69207,
+  lat: 35.68179,
+  lng: 139.7499,
   zoom: 12
 };
 const {lat, lng, zoom} = tokyoPosition;
@@ -92,7 +92,7 @@ const resetMap = () => {
       lat,
       lng
     }, zoom);
-  setAddressValue(mainMarker.lat, mainMarker.lng);
+  setAddressValue(lat, lng);
 };
 
 export {putMarkerOnMap, resetMap, tokyoPosition};
