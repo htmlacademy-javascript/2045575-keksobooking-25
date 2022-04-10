@@ -46,19 +46,16 @@ const createAdElement = ({offer, author}) => {
   adElement.querySelector('.popup__type').textContent = typesDictionary[offer.type];
 
   const popupDescription = adElement.querySelector('.popup__description');
-  popupDescription.innerHTML = '';
   if (offer.description) {
     popupDescription.textContent = offer.description;
   }
 
   const featureContainer = adElement.querySelector('.popup__features');
-  featureContainer.innerHTML = '';
   if (offer.features) {
     featureContainer.append(createFeatures(offer.features));
   }
 
   const photosContainer = adElement.querySelector('.popup__photos');
-  photosContainer.innerHTML = '';
   if (offer.photos) {
     photosContainer.append(createPhotos(offer.photos));
   }
