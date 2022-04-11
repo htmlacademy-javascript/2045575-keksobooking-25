@@ -1,6 +1,6 @@
 import {resetMap} from './map.js';
 import { sendData } from './server-api.js';
-import { successMessage, errorMessage, showMessage } from './dialogs.js';
+import { successMessage, errorMessage, showSubmitMessage } from './dialogs.js';
 
 const MIN_TITLE_LENGTH = 30;
 const MAX_TITLE_LENGTH = 100;
@@ -33,6 +33,7 @@ pristine.addValidator(titleField, validateTitle, titleFieldError);
 // Валидация влияния типа жилья на цену за ночь
 const priceField = adForm.querySelector('[name="price"]');
 const typeOfHousing = adForm.querySelector('[name="type"]');
+
 const minPrices = {
   bungalow: 0,
   flat: 1000,
@@ -100,15 +101,15 @@ timeOut.addEventListener('change', () => {
 });
 
 // Валидация для количества комнат и мест
+const roomsField = adForm.querySelector('[name="rooms"]');
+const capacityField = adForm.querySelector('[name="capacity"]');
+
 const roomOptions = {
   1: '1',
   2: ['2', '1'],
   3: ['3', '2', '1'],
   100: '0'
 };
-
-const roomsField = adForm.querySelector('[name="rooms"]');
-const capacityField = adForm.querySelector('[name="capacity"]');
 
 const validateRooms = () => roomOptions[roomsField.value].includes(capacityField.value);
 
@@ -147,14 +148,14 @@ const setFormActive = () => {
 // Очистка формы
 const resetButton = adForm.querySelector('.ad-form__reset');
 
-const resetAdForm = () => {
+const onAdFormReset = () => {
   adForm.reset();
   priceField.placeholder = PRICE_PLACEHOLDER_DEFAULT;
   priceSliderElement.noUiSlider.set(PRICE_PLACEHOLDER_DEFAULT);
   resetMap();
 };
 
-resetButton.addEventListener('click', () => resetAdForm());
+resetButton.addEventListener('click', onAdFormReset);
 
 // Отправка формы
 const submitButton = adForm.querySelector('.ad-form__submit');
@@ -169,15 +170,15 @@ const unblockSubmitButton = () => {
   submitButton.textContent = 'Опубликовать';
 };
 
-const onSuccess = () => {
+const onSubmitSuccess = () => {
   unblockSubmitButton();
-  resetAdForm();
-  showMessage(successMessage);
+  onAdFormReset();
+  showSubmitMessage(successMessage);
 };
 
-const onError = () => {
+const onSubmitError = () => {
   unblockSubmitButton();
-  showMessage(errorMessage);
+  showSubmitMessage(errorMessage);
 };
 
 const onAdFormSubmit = (evt) => {
@@ -187,7 +188,7 @@ const onAdFormSubmit = (evt) => {
 
   if (isValid) {
     blockSubmitButton();
-    sendData(onSuccess, onError, new FormData(evt.target));
+    sendData(onSubmitSuccess, onSubmitError, new FormData(evt.target));
   }
 };
 

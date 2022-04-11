@@ -1,22 +1,9 @@
 import {setFormActive, setAddressValue} from './form.js';
 import {createAdElement} from './draw-ads.js';
 import { getData } from './server-api.js';
-import { showAlert } from './util.js';
+import { showRequestErrorMessage } from './dialogs.js';
 
 const MAX_ADS_AMOUNT = 10;
-
-const onSuccessReq = (data) => {
-  putMarkersListOnMap(data);
-};
-
-const onErrorReq = () => {
-  showAlert('Не удалось загрузить данные с сервера.');
-};
-
-const onLoad = () => {
-  getData(onSuccessReq, onErrorReq);
-  setFormActive();
-};
 
 const tokyoPosition = {
   lat: 35.68179,
@@ -25,7 +12,20 @@ const tokyoPosition = {
 };
 const {lat, lng, zoom} = tokyoPosition;
 
-const map = L.map('map-canvas').on('load', onLoad)
+const onRequestSuccess = (data) => {
+  putMarkersListOnMap(data);
+};
+
+const onRequestError = () => {
+  showRequestErrorMessage('Не удалось загрузить данные с сервера.');
+};
+
+const onMapLoad = () => {
+  setFormActive();
+  getData(onRequestSuccess, onRequestError);
+};
+
+const map = L.map('map-canvas').on('load', onMapLoad)
   .setView({
     lat,
     lng
@@ -93,13 +93,16 @@ const createMarker = ({location}) => {
 };
 
 const putMarkerOnMap = ({offer, author, location}) => {
-  createMarker({location}).addTo(map).bindPopup(createAdElement({offer, author}));
+  createMarker({location})
+    .addTo(map)
+    .bindPopup(createAdElement({offer, author}));
 };
 
 function putMarkersListOnMap (ads) {
-  ads.slice(0, MAX_ADS_AMOUNT).forEach(({offer, author, location}) => {
-    putMarkerOnMap({offer, author, location});
-  });
+  ads.slice(0, MAX_ADS_AMOUNT)
+    .forEach(({offer, author, location}) => {
+      putMarkerOnMap({offer, author, location});
+    });
 }
 
 // Очистка карты
