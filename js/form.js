@@ -1,4 +1,13 @@
 import {resetMap} from './map.js';
+import { sendData } from './server-api.js';
+import { successMessage, errorMessage, showSubmitMessage } from './dialogs.js';
+
+const MIN_TITLE_LENGTH = 30;
+const MAX_TITLE_LENGTH = 100;
+const MIN_RPICE = 0;
+const MAX_PRICE = 100000;
+const PRICE_SLIDER_STEP = 100;
+const PRICE_PLACEHOLDER_DEFAULT = 1000;
 
 const adForm = document.querySelector('.ad-form');
 const mapForm = document.querySelector('.map__filters');
@@ -13,20 +22,8 @@ const pristine = new Pristine(adForm, {
   errorTextClass: 'form__error',
 });
 
-const clearErrors = () => {
-  const errors = adForm.querySelectorAll('.form__error');
-
-  if (errors) {
-    for (const error of errors) {
-      error.innerText = '';
-    }
-  }
-};
-
 // Валидация для заголовка объявления
 const titleField = adForm.querySelector('[name="title"]');
-const MIN_TITLE_LENGTH = 30;
-const MAX_TITLE_LENGTH = 100;
 const titleFieldError = `От ${MIN_TITLE_LENGTH} до ${MAX_TITLE_LENGTH} символов`;
 
 const validateTitle = (value) => value.length >= MIN_TITLE_LENGTH && value.length <= MAX_TITLE_LENGTH;
@@ -36,6 +33,7 @@ pristine.addValidator(titleField, validateTitle, titleFieldError);
 // Валидация влияния типа жилья на цену за ночь
 const priceField = adForm.querySelector('[name="price"]');
 const typeOfHousing = adForm.querySelector('[name="type"]');
+
 const minPrices = {
   bungalow: 0,
   flat: 1000,
@@ -43,8 +41,6 @@ const minPrices = {
   house: 5000,
   palace: 10000,
 };
-const MIN_RPICE = 0;
-const MAX_PRICE = 100000;
 
 const getPriceErrorMessage = () => `Число от ${minPrices[typeOfHousing.value]} до ${MAX_PRICE}`;
 
@@ -59,7 +55,6 @@ pristine.addValidator(priceField, validatePrice, getPriceErrorMessage);
 
 // Слайдер для цены за ночь
 const priceSliderElement = document.querySelector('.ad-form__slider');
-const PRICE_SLIDER_STEP = 100;
 
 noUiSlider.create(priceSliderElement, {
   range: {
@@ -87,8 +82,6 @@ priceSliderElement.noUiSlider.on('slide', () => {
 });
 
 // Установление значений координат адреса по умолчанию
-const DEFAULT_LAT = 35.68958;
-const DEFAULT_LNG = 139.69207;
 const addressField = document.querySelector('[name="address"]');
 
 const setAddressValue = (latValue, lngValue) => {
@@ -108,17 +101,17 @@ timeOut.addEventListener('change', () => {
 });
 
 // Валидация для количества комнат и мест
-const roomsOption = {
-  '1': '1',
-  '2': ['2', '1'],
-  '3': ['3', '2', '1'],
-  '100': '0'
-};
-
 const roomsField = adForm.querySelector('[name="rooms"]');
 const capacityField = adForm.querySelector('[name="capacity"]');
 
-const validateRooms = () => roomsOption[roomsField.value].includes(capacityField.value);
+const roomOptions = {
+  1: '1',
+  2: ['2', '1'],
+  3: ['3', '2', '1'],
+  100: '0'
+};
+
+const validateRooms = () => roomOptions[roomsField.value].includes(capacityField.value);
 
 const getRoomsErrorMessage = () => {
   switch (roomsField.value) {
@@ -145,28 +138,60 @@ const setFormInactive = () => {
   mapForm.classList.add('map__filters--disabled');
 };
 
+setFormInactive();
+
 const setFormActive = () => {
   adForm.classList.remove('ad-form--disabled');
   mapForm.classList.remove('map__filters--disabled');
-  setAddressValue(DEFAULT_LAT, DEFAULT_LNG);
 };
 
 // Очистка формы
-const PLACEHOLDER_DEFAULT = 0;
+const resetButton = adForm.querySelector('.ad-form__reset');
 
-const resetForm = () => {
-  clearErrors();
-  priceField.placeholder = PLACEHOLDER_DEFAULT;
+const onAdFormReset = () => {
+  adForm.reset();
+  priceField.placeholder = PRICE_PLACEHOLDER_DEFAULT;
+  priceSliderElement.noUiSlider.set(PRICE_PLACEHOLDER_DEFAULT);
   resetMap();
 };
 
-adForm.addEventListener('reset', resetForm);
+resetButton.addEventListener('click', onAdFormReset);
 
 // Отправка формы
-adForm.addEventListener('submit', (evt) => {
-  evt.preventDefault();
-  pristine.validate();
-});
+const submitButton = adForm.querySelector('.ad-form__submit');
 
-setFormInactive();
-export {setFormActive, setAddressValue};
+const blockSubmitButton = () => {
+  submitButton.disabled = 'true';
+  submitButton.textContent = 'Публикую...';
+};
+
+const unblockSubmitButton = () => {
+  submitButton.disabled = 'false';
+  submitButton.textContent = 'Опубликовать';
+};
+
+const onSubmitSuccess = () => {
+  unblockSubmitButton();
+  onAdFormReset();
+  showSubmitMessage(successMessage);
+};
+
+const onSubmitError = () => {
+  unblockSubmitButton();
+  showSubmitMessage(errorMessage);
+};
+
+const onAdFormSubmit = (evt) => {
+  evt.preventDefault();
+
+  const isValid = pristine.validate();
+
+  if (isValid) {
+    blockSubmitButton();
+    sendData(onSubmitSuccess, onSubmitError, new FormData(evt.target));
+  }
+};
+
+adForm.addEventListener('submit', onAdFormSubmit);
+
+export {setFormActive, setFormInactive, setAddressValue};

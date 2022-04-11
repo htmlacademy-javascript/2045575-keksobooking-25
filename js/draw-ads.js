@@ -1,7 +1,4 @@
-import { getSimilarAds } from './data.js';
-
 const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
-const similarListElement = document.querySelector('#map-canvas');
 const typesDictionary = {
   palace: 'Дворец',
   flat: 'Квартира',
@@ -9,7 +6,6 @@ const typesDictionary = {
   bungalow: 'Бунгало',
   hotel: 'Отель',
 };
-const similarAds = getSimilarAds(5);
 
 const createFeatures = (featureList) => {
   const featureListFragment = document.createDocumentFragment();
@@ -50,19 +46,16 @@ const createAdElement = ({offer, author}) => {
   adElement.querySelector('.popup__type').textContent = typesDictionary[offer.type];
 
   const popupDescription = adElement.querySelector('.popup__description');
-  popupDescription.innerHTML = '';
   if (offer.description) {
     popupDescription.textContent = offer.description;
   }
 
   const featureContainer = adElement.querySelector('.popup__features');
-  featureContainer.innerHTML = '';
   if (offer.features) {
     featureContainer.append(createFeatures(offer.features));
   }
 
   const photosContainer = adElement.querySelector('.popup__photos');
-  photosContainer.innerHTML = '';
   if (offer.photos) {
     photosContainer.append(createPhotos(offer.photos));
   }
@@ -70,14 +63,4 @@ const createAdElement = ({offer, author}) => {
   return adElement;
 };
 
-const drawAd = () => {
-  const similarListFragment = document.createDocumentFragment();
-
-  similarAds.forEach(({offer, author}) => {
-    similarListFragment.append(createAdElement({offer, author}));
-  });
-
-  similarListElement.append(similarListFragment);
-};
-
-export {drawAd, similarAds, createAdElement};
+export {createAdElement};
