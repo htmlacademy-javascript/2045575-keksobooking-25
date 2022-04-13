@@ -1,6 +1,6 @@
 import {resetMap} from './map.js';
 import { sendData } from './server-api.js';
-import { successMessage, errorMessage, showSubmitMessage } from './dialogs.js';
+import { successMessage, errorMessage, showDialog } from './dialogs.js';
 
 const MIN_TITLE_LENGTH = 30;
 const MAX_TITLE_LENGTH = 100;
@@ -34,7 +34,7 @@ pristine.addValidator(titleField, validateTitle, titleFieldError);
 const priceField = adForm.querySelector('[name="price"]');
 const typeOfHousing = adForm.querySelector('[name="type"]');
 
-const minPrices = {
+const minPriceStart = {
   bungalow: 0,
   flat: 1000,
   hotel: 3000,
@@ -42,12 +42,12 @@ const minPrices = {
   palace: 10000,
 };
 
-const getPriceErrorMessage = () => `Число от ${minPrices[typeOfHousing.value]} до ${MAX_PRICE}`;
+const getPriceErrorMessage = () => `Число от ${minPriceStart[typeOfHousing.value]} до ${MAX_PRICE}`;
 
-const validatePrice = (value) => value >= minPrices[typeOfHousing.value] && value <= MAX_PRICE;
+const validatePrice = (value) => value >= minPriceStart[typeOfHousing.value] && value <= MAX_PRICE;
 
 typeOfHousing.addEventListener('change', () => {
-  priceField.placeholder = `${minPrices[typeOfHousing.value]}`;
+  priceField.placeholder = `${minPriceStart[typeOfHousing.value]}`;
   pristine.validate(priceField);
 });
 
@@ -132,30 +132,34 @@ capacityField.addEventListener('change', () => {
 
 pristine.addValidator(roomsField, validateRooms, getRoomsErrorMessage);
 
-// Смена состояния формы
-const setFormInactive = () => {
+// Смена состояния форм
+const setFormsInactive = () => {
   adForm.classList.add('ad-form--disabled');
   mapForm.classList.add('map__filters--disabled');
 };
 
-setFormInactive();
+setFormsInactive();
 
-const setFormActive = () => {
+const setAdFormActive = () => {
   adForm.classList.remove('ad-form--disabled');
+};
+
+const setMapFormActive = () => {
   mapForm.classList.remove('map__filters--disabled');
 };
 
 // Очистка формы
 const resetButton = adForm.querySelector('.ad-form__reset');
 
-const onAdFormReset = () => {
+const onFormReset = () => {
+  mapForm.reset();
   adForm.reset();
   priceField.placeholder = PRICE_PLACEHOLDER_DEFAULT;
   priceSliderElement.noUiSlider.set(PRICE_PLACEHOLDER_DEFAULT);
   resetMap();
 };
 
-resetButton.addEventListener('click', onAdFormReset);
+resetButton.addEventListener('click', onFormReset);
 
 // Отправка формы
 const submitButton = adForm.querySelector('.ad-form__submit');
@@ -172,13 +176,13 @@ const unblockSubmitButton = () => {
 
 const onSubmitSuccess = () => {
   unblockSubmitButton();
-  onAdFormReset();
-  showSubmitMessage(successMessage);
+  onFormReset();
+  showDialog(successMessage);
 };
 
 const onSubmitError = () => {
   unblockSubmitButton();
-  showSubmitMessage(errorMessage);
+  showDialog(errorMessage);
 };
 
 const onAdFormSubmit = (evt) => {
@@ -194,4 +198,4 @@ const onAdFormSubmit = (evt) => {
 
 adForm.addEventListener('submit', onAdFormSubmit);
 
-export {setFormActive, setFormInactive, setAddressValue};
+export {setAdFormActive, setMapFormActive, setFormsInactive, setAddressValue, mapForm};

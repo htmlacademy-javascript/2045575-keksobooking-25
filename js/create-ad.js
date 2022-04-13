@@ -1,11 +1,4 @@
 const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
-const typesDictionary = {
-  palace: 'Дворец',
-  flat: 'Квартира',
-  house: 'Дом',
-  bungalow: 'Бунгало',
-  hotel: 'Отель',
-};
 
 const createFeatures = (featureList) => {
   const featureListFragment = document.createDocumentFragment();
@@ -35,15 +28,24 @@ const createPhotos = (photosList) => {
   return photosListFragment;
 };
 
+const housingTypes = {
+  palace: 'Дворец',
+  flat: 'Квартира',
+  house: 'Дом',
+  bungalow: 'Бунгало',
+  hotel: 'Отель',
+};
+
 const createAdElement = ({offer, author}) => {
   const adElement = cardTemplate.cloneNode(true);
+
   adElement.querySelector('.popup__title').textContent = offer.title;
   adElement.querySelector('.popup__text--address').textContent = offer.address;
   adElement.querySelector('.popup__text--price').textContent = `${offer.price} ₽/ночь`;
   adElement.querySelector('.popup__text--capacity').textContent = `${offer.rooms} комнаты для ${offer.guests} гостей`;
   adElement.querySelector('.popup__text--time').textContent =`Заезд после ${offer.checkout}, выезд до ${offer.checkout}`;
   adElement.querySelector('.popup__avatar').src = author.avatar;
-  adElement.querySelector('.popup__type').textContent = typesDictionary[offer.type];
+  adElement.querySelector('.popup__type').textContent = housingTypes[offer.type];
 
   const popupDescription = adElement.querySelector('.popup__description');
   if (offer.description) {

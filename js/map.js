@@ -1,19 +1,18 @@
-import {setFormActive, setAddressValue} from './form.js';
-import {createAdElement} from './draw-ads.js';
+import {setMapFormActive, setAddressValue, setAdFormActive} from './form.js';
+import {createAdElement} from './create-ad.js';
 import { getData } from './server-api.js';
 import { showRequestErrorMessage } from './dialogs.js';
+import { debounce } from './util.js';
+import { onFilterChange } from './filter-ad.js';
+import { getFilteredAd } from './filter-ad.js';
 
 const MAX_ADS_AMOUNT = 10;
-
-const tokyoPosition = {
-  lat: 35.68179,
-  lng: 139.7499,
-  zoom: 12
-};
-const {lat, lng, zoom} = tokyoPosition;
+const INSERT_DELAY = 500;
 
 const onRequestSuccess = (data) => {
   putMarkersListOnMap(data);
+  setMapFormActive();
+  onFilterChange(debounce(() => putMarkersListOnMap(data), INSERT_DELAY));
 };
 
 const onRequestError = () => {
@@ -21,9 +20,16 @@ const onRequestError = () => {
 };
 
 const onMapLoad = () => {
-  setFormActive();
+  setAdFormActive();
   getData(onRequestSuccess, onRequestError);
 };
+
+const tokyoPosition = {
+  lat: 35.68179,
+  lng: 139.7499,
+  zoom: 12
+};
+const {lat, lng, zoom} = tokyoPosition;
 
 const map = L.map('map-canvas').on('load', onMapLoad)
   .setView({
@@ -65,6 +71,7 @@ mainMarker.on('moveend', (evt) => {
   const {target} = evt;
   const mainMarkerLat = parseFloat(target.getLatLng().lat.toFixed(5));
   const mainMarkerLng = parseFloat(target.getLatLng().lng.toFixed(5));
+
   setAddressValue(mainMarkerLat, mainMarkerLng);
 });
 
@@ -76,6 +83,8 @@ const adMarkerIcon = L.icon(
     iconAnchor: [20,40]
   }
 );
+
+const markerGroup = L.layerGroup().addTo(map);
 
 const createMarker = ({location}) => {
   const adMarker = L.marker(
@@ -94,12 +103,15 @@ const createMarker = ({location}) => {
 
 const putMarkerOnMap = ({offer, author, location}) => {
   createMarker({location})
-    .addTo(map)
+    .addTo(markerGroup)
     .bindPopup(createAdElement({offer, author}));
 };
 
 function putMarkersListOnMap (ads) {
-  ads.slice(0, MAX_ADS_AMOUNT)
+  markerGroup.clearLayers();
+
+  ads.filter(({offer}) => getFilteredAd({offer}))
+    .slice(0, MAX_ADS_AMOUNT)
     .forEach(({offer, author, location}) => {
       putMarkerOnMap({offer, author, location});
     });
