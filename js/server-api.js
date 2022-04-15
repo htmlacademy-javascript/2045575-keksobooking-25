@@ -18,6 +18,8 @@ const sendData = (onSuccess, onError, body) => {
     .catch(() => onError());
 };
 
+let savedAdsData = [];
+
 const getData = (onSuccess, onError) => {
   fetch(GET_DATA_URL)
     .then((response) => {
@@ -27,7 +29,10 @@ const getData = (onSuccess, onError) => {
         onError();
       }
     })
-    .then((data) => onSuccess(data));
+    .then((data) => {
+      savedAdsData = data;
+      onSuccess(data);
+    });
 };
 
-export {sendData, getData};
+export {sendData, getData, savedAdsData};

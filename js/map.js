@@ -2,27 +2,8 @@ import {setMapFormActive, setAddressValue, setAdFormActive} from './form.js';
 import {createAdElement} from './create-ad.js';
 import { getData } from './server-api.js';
 import { showRequestErrorMessage } from './dialogs.js';
-import { debounce } from './util.js';
-import { onFilterChange } from './filter-ad.js';
-import { getFilteredAd } from './filter-ad.js';
 
 const MAX_ADS_AMOUNT = 10;
-const INSERT_DELAY = 500;
-
-const onRequestSuccess = (data) => {
-  putMarkersListOnMap(data);
-  setMapFormActive();
-  onFilterChange(debounce(() => putMarkersListOnMap(data), INSERT_DELAY));
-};
-
-const onRequestError = () => {
-  showRequestErrorMessage('Не удалось загрузить данные с сервера.');
-};
-
-const onMapLoad = () => {
-  setAdFormActive();
-  getData(onRequestSuccess, onRequestError);
-};
 
 const tokyoPosition = {
   lat: 35.68179,
@@ -31,11 +12,7 @@ const tokyoPosition = {
 };
 const {lat, lng, zoom} = tokyoPosition;
 
-const map = L.map('map-canvas').on('load', onMapLoad)
-  .setView({
-    lat,
-    lng
-  }, zoom);
+const map = L.map('map-canvas');
 
 L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -107,15 +84,32 @@ const putMarkerOnMap = ({offer, author, location}) => {
     .bindPopup(createAdElement({offer, author}));
 };
 
-function putMarkersListOnMap (ads) {
-  markerGroup.clearLayers();
-
-  ads.filter(({offer}) => getFilteredAd({offer}))
-    .slice(0, MAX_ADS_AMOUNT)
+const putMarkersListOnMap = (ads) => {
+  ads.slice(0, MAX_ADS_AMOUNT)
     .forEach(({offer, author, location}) => {
       putMarkerOnMap({offer, author, location});
     });
-}
+};
+
+const onRequestSuccess = (data) => {
+  putMarkersListOnMap(data);
+  setMapFormActive();
+};
+
+const onRequestError = () => {
+  showRequestErrorMessage('Не удалось загрузить данные с сервера.');
+};
+
+const onMapLoad = () => {
+  setAdFormActive();
+  getData(onRequestSuccess, onRequestError);
+};
+
+map.on('load', onMapLoad)
+  .setView({
+    lat,
+    lng
+  }, zoom);
 
 // Очистка карты
 const resetMap = () => {
@@ -133,4 +127,4 @@ const resetMap = () => {
   setAddressValue(lat, lng);
 };
 
-export {putMarkerOnMap, resetMap, tokyoPosition};
+export {putMarkerOnMap, resetMap, tokyoPosition, putMarkersListOnMap, markerGroup};

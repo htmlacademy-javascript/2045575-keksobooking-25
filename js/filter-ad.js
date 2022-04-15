@@ -1,109 +1,99 @@
-import { mapForm } from './form.js';
+import {debounce} from './util.js';
+import {markerGroup, putMarkersListOnMap} from './map.js';
+import {savedAdsData} from './server-api.js';
 
-const housingPrices = {
+const INSERT_DELAY = 500;
+
+const HousingPriceRank = {
+  LOW: 'low',
+  MIDDLE: 'middle',
+  HIGH: 'high'
+};
+const {LOW, MIDDLE, HIGH} = HousingPriceRank;
+
+const mapFilters = document.querySelector('.map__filters');
+
+const getFilteredType = ({offer}) => {
+  const housingTypeValue = mapFilters.querySelector('[name="housing-type"]').value;
+
+  if (housingTypeValue === offer.type || housingTypeValue === 'any') {
+    return true;
+  }
+};
+
+const housingPriceStart = {
   low: 10000,
   middle: 50000,
+  high: 100000,
 };
 
-const housingRooms = {
-  1: 1,
-  2: 2,
-  3: 3
-};
-
-const housingGuests = {
-  0: 100,
-  1: 1,
-  2: 2
-};
-
-const onFilterChange = (cb) => {
-  mapForm.addEventListener('change', (evt) => {
-    const {target} = evt;
-    if (target.matches('.map__filter') || target.matches('.map__checkbox')) {
-      cb();
-    }
-  });
-};
-
-const getFilteredType = ({offer}, formData) => {
-  const housingTypeValue = formData.get('housing-type');
-  if (housingTypeValue === 'any' || housingTypeValue === offer.type) {
-    return offer.type;
-  }
-};
-
-const getFilteredPrice = ({offer}, formData) => {
-  const housingPriceValue = formData.get('housing-price');
+const getFilteredPrice = ({offer}) => {
+  const housingPriceValue = mapFilters.querySelector('[name="housing-price"]').value;
 
   switch (housingPriceValue) {
-    case 'low':
-      return offer.price <= housingPrices[housingPriceValue];
-    case 'middle':
-      return offer.price >= housingPrices['low'] && offer.price <= housingPrices[housingPriceValue];
-    case 'high':
-      return offer.price >= housingPrices['middle'];
+    case LOW:
+      return offer.price <= housingPriceStart[housingPriceValue];
+    case MIDDLE:
+      return offer.price >= housingPriceStart[LOW] && offer.price <= housingPriceStart[housingPriceValue];
+    case HIGH:
+      return offer.price >= housingPriceStart[MIDDLE];
     default:
-      return offer.price;
+      return true;
   }
 };
 
-const getFilteredRooms = ({offer}, formData) => {
-  const housingRoomsValue = formData.get('housing-rooms');
+const getFilteredRooms = ({offer}) => {
+  const housingRoomsValue = mapFilters.querySelector('[name="housing-rooms"]').value;
 
-  switch (housingRoomsValue) {
-    case '1':
-      return offer.rooms === housingRooms[housingRoomsValue];
-    case '2':
-      return offer.rooms === housingRooms[housingRoomsValue];
-    case '3':
-      return offer.rooms === housingRooms[housingRoomsValue];
-    default:
-      return offer.rooms;
+  if (offer.rooms === parseInt(housingRoomsValue, 10) || housingRoomsValue === 'any') {
+    return true;
   }
 };
 
-const getFilteredGuests = ({offer}, formData) => {
-  const housingGuestsValue = formData.get('housing-guests');
+const getFilteredGuests = ({offer}) => {
+  const housingGuestsValue = mapFilters.querySelector('[name="housing-guests"]').value;
 
-  switch (housingGuestsValue) {
-    case '0':
-      return offer.rooms === housingGuests[housingGuestsValue];
-    case '1':
-      return offer.guests === housingGuests[housingGuestsValue];
-    case '2':
-      return offer.guests === housingGuests[housingGuestsValue];
-    default:
-      return offer.guests;
+  if (offer.guests === parseInt(housingGuestsValue, 10) || housingGuestsValue === 'any') {
+    return true;
   }
 };
 
-const getFilteredFeatures = ({offer}, formData) => {
-  const housingFeaturesValue = formData.getAll('features');
+const getFilteredFeatures = ({offer}) => {
+  const housingFeatures = mapFilters.querySelectorAll('[name="features"]:checked');
+  const housingFeaturesValue = Array.from(housingFeatures, (elem) => elem.value);
 
   let hitCounter = 0;
 
-  for (let i = 0; i < housingFeaturesValue.length; i++) {
-    if (offer.features !== undefined && offer.features.includes(housingFeaturesValue[i])) {
-      hitCounter++;
+  if (offer.features !== undefined) {
+    for (let i = 0; i < housingFeaturesValue.length; i++) {
+      if (offer.features.includes(housingFeaturesValue[i])) {
+        hitCounter++;
+      }
     }
   }
 
   if (housingFeaturesValue.length === hitCounter) {
-    return offer.features;
+    return true;
   }
 };
 
 const getFilteredAd = ({offer}) => {
-  const mapFormData = new FormData(mapForm);
+  const type = getFilteredType({offer});
+  const price = getFilteredPrice({offer});
+  const rooms = getFilteredRooms({offer});
+  const guests = getFilteredGuests({offer});
+  const features = getFilteredFeatures({offer});
 
-  const filteredType = getFilteredType({offer}, mapFormData);
-  const filteredPrice = getFilteredPrice({offer}, mapFormData);
-  const filteredRooms = getFilteredRooms({offer}, mapFormData);
-  const filteredGuests = getFilteredGuests({offer}, mapFormData);
-  const filteredFeatures = getFilteredFeatures({offer}, mapFormData);
-
-  return filteredType && filteredPrice && filteredRooms && filteredGuests && filteredFeatures;
+  return type && price && rooms && guests && features;
 };
 
-export {getFilteredAd, onFilterChange};
+const onFiltersChange = () => {
+  markerGroup.clearLayers();
+
+  const filteredAdsData = savedAdsData.filter(({offer}) => getFilteredAd({offer}));
+  putMarkersListOnMap(filteredAdsData);
+};
+
+mapFilters.addEventListener('change', debounce(onFiltersChange, INSERT_DELAY));
+
+export {onFiltersChange};
