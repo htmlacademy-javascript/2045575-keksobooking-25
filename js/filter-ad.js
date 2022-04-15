@@ -1,6 +1,6 @@
 import {debounce} from './util.js';
-import {markerGroup, putMarkersListOnMap} from './map.js';
-import {savedAdsData} from './server-api.js';
+import {putMarkersListOnMap} from './map.js';
+import { getSavedData } from './save-data.js';
 
 const INSERT_DELAY = 500;
 
@@ -88,9 +88,7 @@ const getFilteredAd = ({offer}) => {
 };
 
 const onFiltersChange = () => {
-  markerGroup.clearLayers();
-
-  const filteredAdsData = savedAdsData.filter(({offer}) => getFilteredAd({offer}));
+  const filteredAdsData = getSavedData().filter(({offer}) => getFilteredAd({offer}));
   putMarkersListOnMap(filteredAdsData);
 };
 

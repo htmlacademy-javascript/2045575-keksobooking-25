@@ -2,6 +2,7 @@ import {setMapFormActive, setAddressValue, setAdFormActive} from './form.js';
 import {createAdElement} from './create-ad.js';
 import { getData } from './server-api.js';
 import { showRequestErrorMessage } from './dialogs.js';
+import { getSavedData } from './save-data.js';
 
 const MAX_ADS_AMOUNT = 10;
 
@@ -85,6 +86,8 @@ const putMarkerOnMap = ({offer, author, location}) => {
 };
 
 const putMarkersListOnMap = (ads) => {
+  markerGroup.clearLayers();
+
   ads.slice(0, MAX_ADS_AMOUNT)
     .forEach(({offer, author, location}) => {
       putMarkerOnMap({offer, author, location});
@@ -113,6 +116,8 @@ map.on('load', onMapLoad)
 
 // Очистка карты
 const resetMap = () => {
+  putMarkersListOnMap(getSavedData());
+
   mainMarker.setLatLng(
     {
       lat,
