@@ -1,7 +1,8 @@
-import {setFormActive, setAddressValue} from './form.js';
-import {createAdElement} from './draw-ads.js';
+import {setAddressValue, enableMapForm, enableAdForm} from './form.js';
+import {createAdElement} from './create-ad.js';
 import { getData } from './server-api.js';
 import { showRequestErrorMessage } from './dialogs.js';
+import { getSavedAds, saveAds } from './ads.js';
 
 const MAX_ADS_AMOUNT = 10;
 
@@ -12,24 +13,7 @@ const tokyoPosition = {
 };
 const {lat, lng, zoom} = tokyoPosition;
 
-const onRequestSuccess = (data) => {
-  putMarkersListOnMap(data);
-};
-
-const onRequestError = () => {
-  showRequestErrorMessage('Не удалось загрузить данные с сервера.');
-};
-
-const onMapLoad = () => {
-  setFormActive();
-  getData(onRequestSuccess, onRequestError);
-};
-
-const map = L.map('map-canvas').on('load', onMapLoad)
-  .setView({
-    lat,
-    lng
-  }, zoom);
+const map = L.map('map-canvas');
 
 L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -65,6 +49,7 @@ mainMarker.on('moveend', (evt) => {
   const {target} = evt;
   const mainMarkerLat = parseFloat(target.getLatLng().lat.toFixed(5));
   const mainMarkerLng = parseFloat(target.getLatLng().lng.toFixed(5));
+
   setAddressValue(mainMarkerLat, mainMarkerLng);
 });
 
@@ -77,36 +62,58 @@ const adMarkerIcon = L.icon(
   }
 );
 
-const createMarker = ({location}) => {
-  const adMarker = L.marker(
-    {
-      lat: location.lat,
-      lng: location.lng
+const markerGroup = L.layerGroup().addTo(map);
 
-    },
-    {
-      adMarkerIcon
-    }
-  );
+const createMarker = ({location}) => L.marker(
+  {
+    lat: location.lat,
+    lng: location.lng
 
-  return adMarker;
-};
+  },
+  {
+    adMarkerIcon
+  });
 
 const putMarkerOnMap = ({offer, author, location}) => {
   createMarker({location})
-    .addTo(map)
-    .bindPopup(createAdElement({offer, author}));
+    .addTo(markerGroup)
+    .bindPopup( createAdElement({offer, author}) );
 };
 
-function putMarkersListOnMap (ads) {
+const putMarkersListOnMap = (ads) => {
+  markerGroup.clearLayers();
+
   ads.slice(0, MAX_ADS_AMOUNT)
     .forEach(({offer, author, location}) => {
       putMarkerOnMap({offer, author, location});
     });
-}
+};
+
+const onRequestSuccess = (data) => {
+  putMarkersListOnMap(data);
+  enableMapForm();
+  saveAds(data);
+};
+
+const onRequestError = () => {
+  showRequestErrorMessage('Не удалось загрузить данные с сервера.');
+};
+
+const onMapLoad = () => {
+  enableAdForm();
+  getData(onRequestSuccess, onRequestError);
+};
+
+map.on('load', onMapLoad)
+  .setView({
+    lat,
+    lng
+  }, zoom);
 
 // Очистка карты
 const resetMap = () => {
+  putMarkersListOnMap( getSavedAds() );
+
   mainMarker.setLatLng(
     {
       lat,
@@ -118,7 +125,8 @@ const resetMap = () => {
       lat,
       lng
     }, zoom);
+
   setAddressValue(lat, lng);
 };
 
-export {putMarkerOnMap, resetMap, tokyoPosition};
+export {resetMap, putMarkersListOnMap};

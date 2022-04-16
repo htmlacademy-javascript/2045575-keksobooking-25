@@ -1,3 +1,11 @@
-const isEscapeKey = (evt) => evt.key === 'Escape';
+const debounce = (cb, timeoutDelay) => {
+  let timeoutId;
 
-export {isEscapeKey};
+  return (...rest) => {
+    clearTimeout(timeoutId);
+
+    timeoutId = setTimeout(() => cb.apply(this, rest), timeoutDelay);
+  };
+};
+
+export {debounce};

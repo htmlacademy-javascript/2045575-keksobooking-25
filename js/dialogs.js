@@ -1,12 +1,10 @@
-import { isEscapeKey } from './util.js';
-
 const ALERT_SHOW_TIME = 5000;
 
 // Вывод сообщения о неуспешной загрузке данных
-const showRequestErrorMessage = (message) => {
-  const alertContainer = document.querySelector('#alert').content.querySelector('.alert');
-  const alertMessage = alertContainer.querySelector('.alert__message');
+const alertContainer = document.querySelector('#alert').content.querySelector('.alert');
 
+const showRequestErrorMessage = (message) => {
+  const alertMessage = alertContainer.querySelector('.alert__message');
   alertMessage.textContent = message;
 
   document.body.append(alertContainer);
@@ -18,11 +16,11 @@ const showRequestErrorMessage = (message) => {
 const successMessage = document.querySelector('#success').content.querySelector('.success');
 const errorMessage = document.querySelector('#error').content.querySelector('.error');
 
-const showSubmitMessage = (message) => {
+const showDialog = (message) => {
   document.body.append(message);
 
   const onMessageEscKeyDown = (evt) => {
-    if (isEscapeKey(evt)) {
+    if (evt.key === 'Escape') {
       closeMessage();
     }
   };
@@ -36,4 +34,4 @@ const showSubmitMessage = (message) => {
   message.addEventListener('click', closeMessage);
 };
 
-export {showSubmitMessage, successMessage, errorMessage, showRequestErrorMessage};
+export {showDialog, successMessage, errorMessage, showRequestErrorMessage};
