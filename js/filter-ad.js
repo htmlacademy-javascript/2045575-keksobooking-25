@@ -1,6 +1,6 @@
 import {debounce} from './util.js';
 import {putMarkersListOnMap} from './map.js';
-import { getSavedData } from './save-data.js';
+import { getSavedAds } from './ads.js';
 
 const INSERT_DELAY = 500;
 
@@ -9,89 +9,75 @@ const HousingPriceRank = {
   MIDDLE: 'middle',
   HIGH: 'high'
 };
-const {LOW, MIDDLE, HIGH} = HousingPriceRank;
 
 const mapFilters = document.querySelector('.map__filters');
 
-const getFilteredType = ({offer}) => {
-  const housingTypeValue = mapFilters.querySelector('[name="housing-type"]').value;
+const housingType = mapFilters.querySelector('[name="housing-type"]');
 
-  if (housingTypeValue === offer.type || housingTypeValue === 'any') {
-    return true;
-  }
+const filterByType = ({offer}) => {
+  const housingTypeValue = housingType.value;
+
+  return housingTypeValue === offer.type || housingTypeValue === 'any';
 };
 
-const housingPriceStart = {
+const housingPriceValues = {
   low: 10000,
   middle: 50000,
   high: 100000,
 };
 
-const getFilteredPrice = ({offer}) => {
-  const housingPriceValue = mapFilters.querySelector('[name="housing-price"]').value;
+const housingPrice = mapFilters.querySelector('[name="housing-price"]');
+
+const filterByPrice = ({offer}) => {
+  const housingPriceValue = housingPrice.value;
+  const {LOW, MIDDLE, HIGH} = HousingPriceRank;
 
   switch (housingPriceValue) {
     case LOW:
-      return offer.price <= housingPriceStart[housingPriceValue];
+      return offer.price <= housingPriceValues[housingPriceValue];
     case MIDDLE:
-      return offer.price >= housingPriceStart[LOW] && offer.price <= housingPriceStart[housingPriceValue];
+      return offer.price >= housingPriceValues[LOW] && offer.price <= housingPriceValues[housingPriceValue];
     case HIGH:
-      return offer.price >= housingPriceStart[MIDDLE];
+      return offer.price >= housingPriceValues[MIDDLE];
     default:
       return true;
   }
 };
 
-const getFilteredRooms = ({offer}) => {
-  const housingRoomsValue = mapFilters.querySelector('[name="housing-rooms"]').value;
+const housingRooms = mapFilters.querySelector('[name="housing-rooms"]');
 
-  if (offer.rooms === parseInt(housingRoomsValue, 10) || housingRoomsValue === 'any') {
-    return true;
-  }
+const filterByRooms = ({offer}) => {
+  const housingRoomsValue = housingRooms.value;
+
+  return offer.rooms === +housingRoomsValue || housingRoomsValue === 'any';
 };
 
-const getFilteredGuests = ({offer}) => {
-  const housingGuestsValue = mapFilters.querySelector('[name="housing-guests"]').value;
+const housingGuests = mapFilters.querySelector('[name="housing-guests"]');
 
-  if (offer.guests === parseInt(housingGuestsValue, 10) || housingGuestsValue === 'any') {
-    return true;
-  }
+const filterByGuests = ({offer}) => {
+  const housingGuestsValue = housingGuests.value;
+
+  return offer.guests === +housingGuestsValue || housingGuestsValue === 'any';
 };
 
-const getFilteredFeatures = ({offer}) => {
-  const housingFeatures = mapFilters.querySelectorAll('[name="features"]:checked');
-  const housingFeaturesValue = Array.from(housingFeatures, (elem) => elem.value);
+const filterByFeatures = ({offer}) => {
+  const features = mapFilters.querySelectorAll('[name="features"]:checked');
+  const featuresValues = Array.from(features, (elem) => elem.value);
 
-  let hitCounter = 0;
-
-  if (offer.features !== undefined) {
-    for (let i = 0; i < housingFeaturesValue.length; i++) {
-      if (offer.features.includes(housingFeaturesValue[i])) {
-        hitCounter++;
-      }
-    }
+  if (offer.features) {
+    return featuresValues.every((value) => offer.features.includes(value));
   }
-
-  if (housingFeaturesValue.length === hitCounter) {
-    return true;
-  }
-};
-
-const getFilteredAd = ({offer}) => {
-  const type = getFilteredType({offer});
-  const price = getFilteredPrice({offer});
-  const rooms = getFilteredRooms({offer});
-  const guests = getFilteredGuests({offer});
-  const features = getFilteredFeatures({offer});
-
-  return type && price && rooms && guests && features;
 };
 
 const onFiltersChange = () => {
-  const filteredAdsData = getSavedData().filter(({offer}) => getFilteredAd({offer}));
-  putMarkersListOnMap(filteredAdsData);
+  const filteredAds = getSavedAds().filter(({offer}) =>
+    filterByType({offer}) &&
+    filterByRooms({offer}) &&
+    filterByPrice({offer}) &&
+    filterByGuests({offer}) &&
+    filterByFeatures({offer}));
+
+  putMarkersListOnMap(filteredAds);
 };
 
 mapFilters.addEventListener('change', debounce(onFiltersChange, INSERT_DELAY));
-
-export {onFiltersChange};

@@ -1,8 +1,8 @@
-import {setMapFormActive, setAddressValue, setAdFormActive} from './form.js';
+import {setAddressValue, enableMapForm, enableAdForm} from './form.js';
 import {createAdElement} from './create-ad.js';
 import { getData } from './server-api.js';
 import { showRequestErrorMessage } from './dialogs.js';
-import { getSavedData } from './save-data.js';
+import { getSavedAds, saveAds } from './ads.js';
 
 const MAX_ADS_AMOUNT = 10;
 
@@ -64,25 +64,20 @@ const adMarkerIcon = L.icon(
 
 const markerGroup = L.layerGroup().addTo(map);
 
-const createMarker = ({location}) => {
-  const adMarker = L.marker(
-    {
-      lat: location.lat,
-      lng: location.lng
+const createMarker = ({location}) => L.marker(
+  {
+    lat: location.lat,
+    lng: location.lng
 
-    },
-    {
-      adMarkerIcon
-    }
-  );
-
-  return adMarker;
-};
+  },
+  {
+    adMarkerIcon
+  });
 
 const putMarkerOnMap = ({offer, author, location}) => {
   createMarker({location})
     .addTo(markerGroup)
-    .bindPopup(createAdElement({offer, author}));
+    .bindPopup( createAdElement({offer, author}) );
 };
 
 const putMarkersListOnMap = (ads) => {
@@ -96,7 +91,8 @@ const putMarkersListOnMap = (ads) => {
 
 const onRequestSuccess = (data) => {
   putMarkersListOnMap(data);
-  setMapFormActive();
+  enableMapForm();
+  saveAds(data);
 };
 
 const onRequestError = () => {
@@ -104,7 +100,7 @@ const onRequestError = () => {
 };
 
 const onMapLoad = () => {
-  setAdFormActive();
+  enableAdForm();
   getData(onRequestSuccess, onRequestError);
 };
 
@@ -116,7 +112,7 @@ map.on('load', onMapLoad)
 
 // Очистка карты
 const resetMap = () => {
-  putMarkersListOnMap(getSavedData());
+  putMarkersListOnMap( getSavedAds() );
 
   mainMarker.setLatLng(
     {
@@ -129,7 +125,8 @@ const resetMap = () => {
       lat,
       lng
     }, zoom);
+
   setAddressValue(lat, lng);
 };
 
-export {putMarkerOnMap, resetMap, tokyoPosition, putMarkersListOnMap, markerGroup};
+export {resetMap, putMarkersListOnMap};

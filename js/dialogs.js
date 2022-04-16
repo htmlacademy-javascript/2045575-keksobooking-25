@@ -7,7 +7,6 @@ const alertContainer = document.querySelector('#alert').content.querySelector('.
 
 const showRequestErrorMessage = (message) => {
   const alertMessage = alertContainer.querySelector('.alert__message');
-
   alertMessage.textContent = message;
 
   document.body.append(alertContainer);

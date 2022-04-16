@@ -133,18 +133,18 @@ capacityField.addEventListener('change', () => {
 pristine.addValidator(roomsField, validateRooms, getRoomsErrorMessage);
 
 // Смена состояния форм
-const setFormsInactive = () => {
+const disableForms = () => {
   adForm.classList.add('ad-form--disabled');
   mapForm.classList.add('map__filters--disabled');
 };
 
-setFormsInactive();
+disableForms();
 
-const setAdFormActive = () => {
+const enableAdForm = () => {
   adForm.classList.remove('ad-form--disabled');
 };
 
-const setMapFormActive = () => {
+const enableMapForm = () => {
   mapForm.classList.remove('map__filters--disabled');
 };
 
@@ -154,6 +154,7 @@ const resetButton = adForm.querySelector('.ad-form__reset');
 const onFormReset = () => {
   mapForm.reset();
   adForm.reset();
+  // clearPhotos();
   priceField.placeholder = PRICE_PLACEHOLDER_DEFAULT;
   priceSliderElement.noUiSlider.set(PRICE_PLACEHOLDER_DEFAULT);
   resetMap();
@@ -198,4 +199,4 @@ const onAdFormSubmit = (evt) => {
 
 adForm.addEventListener('submit', onAdFormSubmit);
 
-export {setAdFormActive, setMapFormActive, setFormsInactive, setAddressValue, mapForm};
+export {enableAdForm, enableMapForm, disableForms, setAddressValue, mapForm};

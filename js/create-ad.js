@@ -1,5 +1,3 @@
-const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
-
 const createFeatures = (featureList) => {
   const featureListFragment = document.createDocumentFragment();
 
@@ -7,6 +5,7 @@ const createFeatures = (featureList) => {
     const featureElement = document.createElement('li');
     featureElement.classList.add('popup__feature');
     featureElement.classList.add(`popup__feature--${featureItem}`);
+
     featureListFragment.append(featureElement);
   });
 
@@ -22,6 +21,7 @@ const createPhotos = (photosList) => {
     photoElement.width = '45';
     photoElement.height = '40';
     photoElement.alt = 'Фотография жилья';
+
     photosListFragment.append(photoElement);
   });
 
@@ -36,6 +36,8 @@ const housingTypes = {
   hotel: 'Отель',
 };
 
+const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
+
 const createAdElement = ({offer, author}) => {
   const adElement = cardTemplate.cloneNode(true);
 
@@ -48,16 +50,19 @@ const createAdElement = ({offer, author}) => {
   adElement.querySelector('.popup__type').textContent = housingTypes[offer.type];
 
   const popupDescription = adElement.querySelector('.popup__description');
+
   if (offer.description) {
     popupDescription.textContent = offer.description;
   }
 
   const featureContainer = adElement.querySelector('.popup__features');
+
   if (offer.features) {
     featureContainer.append(createFeatures(offer.features));
   }
 
   const photosContainer = adElement.querySelector('.popup__photos');
+
   if (offer.photos) {
     photosContainer.append(createPhotos(offer.photos));
   }

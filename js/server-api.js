@@ -1,6 +1,3 @@
-import { saveData } from './save-data.js';
-
-
 const SEND_DATA_URL = 'https://25.javascript.pages.academy/keksobooking/';
 const GET_DATA_URL = 'https://25.javascript.pages.academy/keksobooking/data';
 
@@ -30,10 +27,7 @@ const getData = (onSuccess, onError) => {
         onError();
       }
     })
-    .then((data) => {
-      saveData(data);
-      onSuccess(data);
-    });
+    .then((data) => onSuccess(data));
 };
 
 export {sendData, getData};
