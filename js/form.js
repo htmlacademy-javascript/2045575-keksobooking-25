@@ -1,6 +1,7 @@
 import {resetMap} from './map.js';
 import { sendData } from './server-api.js';
 import { successMessage, errorMessage, showDialog } from './dialogs.js';
+import { clearPhotos } from './photo-preview.js';
 
 const MIN_TITLE_LENGTH = 30;
 const MAX_TITLE_LENGTH = 100;
@@ -154,7 +155,7 @@ const resetButton = adForm.querySelector('.ad-form__reset');
 const onFormReset = () => {
   mapForm.reset();
   adForm.reset();
-  // clearPhotos();
+  clearPhotos();
   priceField.placeholder = PRICE_PLACEHOLDER_DEFAULT;
   priceSliderElement.noUiSlider.set(PRICE_PLACEHOLDER_DEFAULT);
   resetMap();
