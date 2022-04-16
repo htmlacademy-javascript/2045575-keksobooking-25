@@ -14,13 +14,9 @@ const mapFilters = document.querySelector('.map__filters');
 
 const housingType = mapFilters.querySelector('[name="housing-type"]');
 
-const filterByType = ({offer}) => {
-  const housingTypeValue = housingType.value;
+const filterByType = ({offer}) => housingType.value === offer.type || housingType.value === 'any';
 
-  return housingTypeValue === offer.type || housingTypeValue === 'any';
-};
-
-const housingPriceValues = {
+const housingPriceRange = {
   low: 10000,
   middle: 50000,
   high: 100000,
@@ -29,16 +25,15 @@ const housingPriceValues = {
 const housingPrice = mapFilters.querySelector('[name="housing-price"]');
 
 const filterByPrice = ({offer}) => {
-  const housingPriceValue = housingPrice.value;
   const {LOW, MIDDLE, HIGH} = HousingPriceRank;
 
-  switch (housingPriceValue) {
+  switch (housingPrice.value) {
     case LOW:
-      return offer.price <= housingPriceValues[housingPriceValue];
+      return offer.price <= housingPriceRange.low;
     case MIDDLE:
-      return offer.price >= housingPriceValues[LOW] && offer.price <= housingPriceValues[housingPriceValue];
+      return offer.price >= housingPriceRange.low && offer.price <= housingPriceRange.middle;
     case HIGH:
-      return offer.price >= housingPriceValues[MIDDLE];
+      return offer.price >= housingPriceRange.middle;
     default:
       return true;
   }
@@ -46,19 +41,11 @@ const filterByPrice = ({offer}) => {
 
 const housingRooms = mapFilters.querySelector('[name="housing-rooms"]');
 
-const filterByRooms = ({offer}) => {
-  const housingRoomsValue = housingRooms.value;
-
-  return offer.rooms === +housingRoomsValue || housingRoomsValue === 'any';
-};
+const filterByRooms = ({offer}) => offer.rooms === +housingRooms.value || housingRooms.value === 'any';
 
 const housingGuests = mapFilters.querySelector('[name="housing-guests"]');
 
-const filterByGuests = ({offer}) => {
-  const housingGuestsValue = housingGuests.value;
-
-  return offer.guests === +housingGuestsValue || housingGuestsValue === 'any';
-};
+const filterByGuests = ({offer}) => offer.guests === +housingGuests.value || housingGuests.value === 'any';
 
 const filterByFeatures = ({offer}) => {
   const features = mapFilters.querySelectorAll('[name="features"]:checked');
@@ -80,4 +67,5 @@ const onFiltersChange = () => {
   putMarkersListOnMap(filteredAds);
 };
 
-mapFilters.addEventListener('change', debounce(onFiltersChange, INSERT_DELAY));
+mapFilters.addEventListener('change',
+  debounce(onFiltersChange, INSERT_DELAY));

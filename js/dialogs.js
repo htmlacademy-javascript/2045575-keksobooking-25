@@ -1,3 +1,5 @@
+import { isEscapeKey } from './util.js';
+
 const ALERT_SHOW_TIME = 5000;
 
 // Вывод сообщения о неуспешной загрузке данных
@@ -20,7 +22,7 @@ const showDialog = (message) => {
   document.body.append(message);
 
   const onMessageEscKeyDown = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isEscapeKey(evt.key)) {
       closeMessage();
     }
   };
