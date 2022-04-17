@@ -8,7 +8,7 @@ const MAX_TITLE_LENGTH = 100;
 const MIN_RPICE = 0;
 const MAX_PRICE = 100000;
 const PRICE_SLIDER_STEP = 100;
-const PRICE_PLACEHOLDER_DEFAULT = 1000;
+const PRICE_DEFAULT = 1000;
 
 const adForm = document.querySelector('.ad-form');
 const mapForm = document.querySelector('.map__filters');
@@ -152,13 +152,18 @@ const enableMapForm = () => {
 // Очистка формы
 const resetButton = adForm.querySelector('.ad-form__reset');
 
-const onFormReset = () => {
+const setPriceDefault = () => {
+  priceField.placeholder = PRICE_DEFAULT;
+  priceSliderElement.noUiSlider.set(PRICE_DEFAULT);
+};
+
+const onFormReset = (evt) => {
+  evt.preventDefault();
   mapForm.reset();
   adForm.reset();
   clearPhotos();
-  priceField.placeholder = PRICE_PLACEHOLDER_DEFAULT;
-  priceSliderElement.noUiSlider.set(PRICE_PLACEHOLDER_DEFAULT);
   resetMap();
+  setPriceDefault();
 };
 
 resetButton.addEventListener('click', onFormReset);

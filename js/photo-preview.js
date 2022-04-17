@@ -18,11 +18,17 @@ const onPhotoChoose = (photoChooser, preview) => {
   }
 };
 
-userPhotoChooser.addEventListener('change', () => onPhotoChoose(userPhotoChooser, userPhotoPreview));
+userPhotoChooser.addEventListener('change', (evt) => {
+  const {target} = evt;
 
-housingPhotoChooser.addEventListener('change', () => {
+  onPhotoChoose(target, userPhotoPreview);
+});
+
+housingPhotoChooser.addEventListener('change', (evt) => {
+  const {target} = evt;
   housingPhotoPreviewContainer.append(housingPhotoPreview);
-  onPhotoChoose(housingPhotoChooser, housingPhotoPreview);
+
+  onPhotoChoose(target, housingPhotoPreview);
 });
 
 const clearPhotos = () => {

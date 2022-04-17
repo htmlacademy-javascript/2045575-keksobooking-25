@@ -67,5 +67,4 @@ const onFiltersChange = () => {
   putMarkersListOnMap(filteredAds);
 };
 
-mapFilters.addEventListener('change',
-  debounce(onFiltersChange, INSERT_DELAY));
+mapFilters.addEventListener('change', debounce(onFiltersChange, INSERT_DELAY));

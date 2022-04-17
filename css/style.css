@@ -411,6 +411,10 @@ fieldset {
   margin-right: 14px;
 }
 
+.ad-form__slider:not(#fake-id) {
+  margin-top: 18px;
+}
+
 .ad-form__slider.noUi-target:not(#fake-id) {
   width: calc(100% - 20px);
   height: 5px;
@@ -428,7 +432,7 @@ fieldset {
   right: -5px;
   top: -5px;
   cursor: grab;
-  background-color: #999999;
+  background-color: #777575;
 }
 
 .ad-form__slider:not(#fake-id) .noUi-handle::after,
@@ -979,6 +983,8 @@ fieldset {
   display: block;
   font-size: 0.85em;
   color: #c00;
+
+  margin-bottom: -15px;
 }
 
 .success__message,
