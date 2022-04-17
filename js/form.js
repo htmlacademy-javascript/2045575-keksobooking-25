@@ -157,8 +157,7 @@ const setPriceDefault = () => {
   priceSliderElement.noUiSlider.set(PRICE_DEFAULT);
 };
 
-const onFormReset = (evt) => {
-  evt.preventDefault();
+const onFormReset = () => {
   mapForm.reset();
   adForm.reset();
   clearPhotos();
