@@ -5,7 +5,7 @@ import { clearPhotos } from './photo-preview.js';
 
 const MIN_TITLE_LENGTH = 30;
 const MAX_TITLE_LENGTH = 100;
-const MIN_RPICE = 0;
+const MIN_PRICE = 0;
 const MAX_PRICE = 100000;
 const PRICE_SLIDER_STEP = 100;
 const PRICE_DEFAULT = 1000;
@@ -59,10 +59,10 @@ const priceSliderElement = document.querySelector('.ad-form__slider');
 
 noUiSlider.create(priceSliderElement, {
   range: {
-    min: MIN_RPICE,
+    min: MIN_PRICE,
     max: MAX_PRICE
   },
-  start: MIN_RPICE,
+  start: MIN_PRICE,
   step: PRICE_SLIDER_STEP,
   connect: 'lower',
   format: {
@@ -157,7 +157,7 @@ const setPriceDefault = () => {
   priceSliderElement.noUiSlider.set(PRICE_DEFAULT);
 };
 
-const onFormReset = () => {
+const resetForm = () => {
   mapForm.reset();
   adForm.reset();
   clearPhotos();
@@ -165,24 +165,27 @@ const onFormReset = () => {
   setPriceDefault();
 };
 
-resetButton.addEventListener('click', onFormReset);
+resetButton.addEventListener('click', (evt) => {
+  evt.preventDefault();
+  resetForm();
+});
 
 // Отправка формы
 const submitButton = adForm.querySelector('.ad-form__submit');
 
 const blockSubmitButton = () => {
-  submitButton.disabled = 'true';
+  submitButton.disabled = true;
   submitButton.textContent = 'Публикую...';
 };
 
 const unblockSubmitButton = () => {
-  submitButton.disabled = 'false';
+  submitButton.disabled = false;
   submitButton.textContent = 'Опубликовать';
 };
 
 const onSubmitSuccess = () => {
   unblockSubmitButton();
-  onFormReset();
+  resetForm();
   showDialog(successMessage);
 };
 

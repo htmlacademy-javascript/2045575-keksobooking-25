@@ -5,6 +5,7 @@ import { showRequestErrorMessage } from './dialogs.js';
 import { getSavedAds, saveAds } from './ads.js';
 
 const MAX_ADS_AMOUNT = 10;
+const REQUEST_ERROR_MESSAGE = 'Не удалось загрузить данные с сервера';
 
 const tokyoPosition = {
   lat: 35.68179,
@@ -96,7 +97,7 @@ const onRequestSuccess = (data) => {
 };
 
 const onRequestError = () => {
-  showRequestErrorMessage('Не удалось загрузить данные с сервера.');
+  showRequestErrorMessage(REQUEST_ERROR_MESSAGE);
 };
 
 const onMapLoad = () => {
