@@ -56,7 +56,7 @@ const filterByFeatures = ({offer}) => {
   }
 };
 
-const onFiltersChange = () => {
+const onFiltersChange = debounce( () => {
   const filteredAds = getSavedAds().filter(({offer}) =>
     filterByType({offer}) &&
     filterByRooms({offer}) &&
@@ -65,6 +65,6 @@ const onFiltersChange = () => {
     filterByFeatures({offer}));
 
   putMarkersListOnMap(filteredAds);
-};
+}, INSERT_DELAY);
 
-mapFilters.addEventListener('change', debounce(onFiltersChange, INSERT_DELAY));
+mapFilters.addEventListener('change', onFiltersChange);
