@@ -1,3 +1,5 @@
+const MAX_ADS_AMOUNT = 10;
+
 let ads = [];
 
 const saveAds = (data) => {
@@ -6,4 +8,6 @@ const saveAds = (data) => {
 
 const getSavedAds = () => ads;
 
-export {saveAds, getSavedAds};
+const getMaxAdsAmount = () => ads.slice(0, MAX_ADS_AMOUNT);
+
+export {saveAds, getSavedAds, getMaxAdsAmount, MAX_ADS_AMOUNT};
