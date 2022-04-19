@@ -2,10 +2,10 @@ import {setAddressValue, enableMapForm, enableAdForm} from './form.js';
 import {createAdElement} from './create-ad.js';
 import { getData } from './server-api.js';
 import { showRequestErrorMessage } from './dialogs.js';
-import { getSavedAds, saveAds } from './ads.js';
+import {saveAds, getMaxAdsAmount } from './ads.js';
 
-const MAX_ADS_AMOUNT = 10;
 const REQUEST_ERROR_MESSAGE = 'Не удалось загрузить данные с сервера';
+const MAX_FRACTION_LENGTH = 5;
 
 const tokyoPosition = {
   lat: 35.68179,
@@ -48,8 +48,8 @@ mainMarker.addTo(map);
 // Изменение значения поля адреса координатами главного маркера
 mainMarker.on('moveend', (evt) => {
   const {target} = evt;
-  const mainMarkerLat = parseFloat(target.getLatLng().lat.toFixed(5));
-  const mainMarkerLng = parseFloat(target.getLatLng().lng.toFixed(5));
+  const mainMarkerLat = parseFloat(target.getLatLng().lat.toFixed(MAX_FRACTION_LENGTH));
+  const mainMarkerLng = parseFloat(target.getLatLng().lng.toFixed(MAX_FRACTION_LENGTH));
 
   setAddressValue(mainMarkerLat, mainMarkerLng);
 });
@@ -84,16 +84,15 @@ const putMarkerOnMap = ({offer, author, location}) => {
 const putMarkersListOnMap = (ads) => {
   markerGroup.clearLayers();
 
-  ads.slice(0, MAX_ADS_AMOUNT)
-    .forEach(({offer, author, location}) => {
-      putMarkerOnMap({offer, author, location});
-    });
+  ads.forEach(({offer, author, location}) => {
+    putMarkerOnMap({offer, author, location});
+  });
 };
 
 const onRequestSuccess = (data) => {
-  putMarkersListOnMap(data);
-  enableMapForm();
   saveAds(data);
+  putMarkersListOnMap( getMaxAdsAmount() );
+  enableMapForm();
 };
 
 const onRequestError = () => {
@@ -113,7 +112,7 @@ map.on('load', onMapLoad)
 
 // Очистка карты
 const resetMap = () => {
-  putMarkersListOnMap( getSavedAds() );
+  putMarkersListOnMap( getMaxAdsAmount() );
 
   mainMarker.setLatLng(
     {

@@ -23,17 +23,17 @@ const showDialog = (message) => {
 
   const onMessageEscKeyDown = (evt) => {
     if (isEscapeKey(evt.key)) {
-      closeMessage();
+      onMessageClose();
     }
   };
 
-  function closeMessage () {
+  function onMessageClose () {
     message.remove();
     document.removeEventListener('keydown', onMessageEscKeyDown);
   }
 
   document.addEventListener('keydown', onMessageEscKeyDown);
-  message.addEventListener('click', closeMessage);
+  message.addEventListener('click', onMessageClose);
 };
 
 export {showDialog, successMessage, errorMessage, showRequestErrorMessage};

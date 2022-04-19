@@ -1,6 +1,6 @@
 import {debounce} from './util.js';
 import {putMarkersListOnMap} from './map.js';
-import { getSavedAds } from './ads.js';
+import { getSavedAds, MAX_ADS_AMOUNT } from './ads.js';
 
 const INSERT_DELAY = 500;
 
@@ -56,13 +56,24 @@ const filterByFeatures = ({offer}) => {
   }
 };
 
+const filterAd = ({offer}) => filterByType({offer}) &&
+  filterByRooms({offer}) &&
+  filterByPrice({offer}) &&
+  filterByGuests({offer}) &&
+  filterByFeatures({offer});
+
 const onFiltersChange = debounce( () => {
-  const filteredAds = getSavedAds().filter(({offer}) =>
-    filterByType({offer}) &&
-    filterByRooms({offer}) &&
-    filterByPrice({offer}) &&
-    filterByGuests({offer}) &&
-    filterByFeatures({offer}));
+  const filteredAds = [];
+
+  for (const elem of getSavedAds()) {
+    if (filterAd(elem)) {
+      filteredAds.push(elem);
+    }
+
+    if (filteredAds.length === MAX_ADS_AMOUNT) {
+      break;
+    }
+  }
 
   putMarkersListOnMap(filteredAds);
 }, INSERT_DELAY);
